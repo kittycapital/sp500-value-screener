@@ -21,10 +21,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Fetch data from FMP API
-        env:
-          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+      - name: Install dependencies
+        run: pip install yfinance --break-system-packages
+
+      - name: Fetch data from Yahoo Finance
         run: python fetch_data.py
+        timeout-minutes: 30
 
       - name: Commit and push data
         run: |
