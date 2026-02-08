@@ -2,1068 +2,981 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>비트코인 ETF 자금 흐름 대시보드</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>S&P 500 자사주 매입 트래커</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg-primary: #0a0a0f;
   --bg-card: #12121a;
-  --bg-card-hover: #181824;
-  --bg-elevated: #1a1a28;
+  --bg-card-hover: #1a1a28;
   --border: #1e1e30;
-  --border-glow: #2a2a45;
   --text-primary: #e8e8f0;
   --text-secondary: #8888a8;
-  --text-muted: #555570;
-  --green: #00d68f;
-  --green-dim: #00d68f33;
-  --green-bg: #00d68f15;
-  --red: #ff3d71;
-  --red-dim: #ff3d7133;
-  --red-bg: #ff3d7115;
-  --blue: #3366ff;
-  --blue-dim: #3366ff33;
-  --orange: #ffaa00;
-  --purple: #9966ff;
-  --cyan: #00cfff;
-  --accent: #00d68f;
+  --text-muted: #55556a;
+  --accent-blue: #4a90ff;
+  --accent-cyan: #00d4aa;
+  --accent-purple: #a855f7;
+  --accent-orange: #ff8c42;
+  --accent-red: #ff4d6a;
+  --accent-yellow: #ffd644;
+  --accent-green: #22c55e;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Noto Sans KR', sans-serif;
   line-height: 1.6;
-  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* ─── Header ─── */
+/* ====== HEADER ====== */
 .header {
-  padding: 28px 32px 20px;
+  padding: 36px 20px 24px;
+  text-align: center;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, #0e0e18 0%, var(--bg-primary) 100%);
+  background: linear-gradient(180deg, #0f0f1a 0%, var(--bg-primary) 100%);
 }
 
-.header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+.header-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border: 1px solid var(--accent-cyan);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
 }
 
 .header h1 {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-size: clamp(22px, 5vw, 36px);
+  font-weight: 900;
+  background: linear-gradient(135deg, #e8e8f0 30%, var(--accent-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+  line-height: 1.3;
 }
 
-.header h1 .btc-icon {
-  width: 28px;
-  height: 28px;
-  background: var(--orange);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: #000;
+.header p { color: var(--text-secondary); font-size: 13px; max-width: 500px; margin: 0 auto; }
+.header-meta { margin-top: 8px; font-size: 11px; color: var(--text-muted); }
+
+/* ====== STATS BAR ====== */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
+.stat-item { background: var(--bg-card); padding: 14px 10px; text-align: center; }
 
-.header-meta .status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.header-meta .dot {
-  width: 6px;
-  height: 6px;
-  background: var(--green);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.period-selector {
-  display: flex;
-  gap: 4px;
-  margin-top: 16px;
-}
-
-.period-btn {
-  padding: 6px 14px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 12px;
+.stat-value {
   font-family: 'JetBrains Mono', monospace;
-  cursor: pointer;
-  transition: all 0.2s;
+  font-size: clamp(16px, 4vw, 22px);
+  font-weight: 700;
+  color: var(--accent-cyan);
+  white-space: nowrap;
 }
 
-.period-btn:hover { border-color: var(--border-glow); color: var(--text-primary); }
-.period-btn.active {
-  background: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-  font-weight: 600;
+.stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+  line-height: 1.3;
 }
 
-/* ─── Dashboard Grid ─── */
-.dashboard {
-  max-width: 1400px;
+/* ====== SECTIONS ====== */
+.section {
+  padding: 28px 16px;
+  border-bottom: 1px solid var(--border);
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
-/* ─── Summary Cards ─── */
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-}
+.section-header { margin-bottom: 20px; }
 
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
-  transition: all 0.3s;
-}
-
-.card:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-glow);
-}
-
-.card-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.card-value {
+.section-num {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-}
-
-.card-value.positive { color: var(--green); }
-.card-value.negative { color: var(--red); }
-.card-value.neutral { color: var(--text-primary); }
-
-.card-sub {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-/* ─── Chart Sections ─── */
-.chart-section {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px;
-}
-
-.chart-section:hover {
-  border-color: var(--border-glow);
-}
-
-.chart-title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 10px;
+  color: var(--accent-cyan);
+  letter-spacing: 2px;
+  display: block;
   margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.chart-subtitle {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-bottom: 20px;
+.section-title {
+  font-size: clamp(17px, 3.5vw, 24px);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
 }
 
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: 320px;
-}
+.section-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 
-.chart-container.tall { height: 400px; }
-
-/* ─── Two Column Layout ─── */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-/* ─── ETF Table ─── */
-.etf-table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.etf-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.etf-table th {
-  text-align: left;
-  padding: 10px 12px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.etf-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.etf-table tr:last-child td { border-bottom: none; }
-
-.etf-table tr:hover td { background: var(--bg-elevated); }
-
-.etf-table .ticker {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.etf-table .issuer { color: var(--text-secondary); font-size: 11px; }
-
-.etf-table .flow-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 500;
-}
-
-.etf-table .flow-value.pos { color: var(--green); }
-.etf-table .flow-value.neg { color: var(--red); }
-.etf-table .flow-value.zero { color: var(--text-muted); }
-
-.flow-bar-cell {
-  width: 120px;
-}
-
-.flow-bar-wrap {
-  width: 100%;
-  height: 6px;
-  background: var(--bg-primary);
-  border-radius: 3px;
+/* ====== CHART CONTAINERS ====== */
+.chart-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 10px;
+  margin-bottom: 16px;
   position: relative;
   overflow: hidden;
 }
 
-.flow-bar {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.5s ease;
+.chart-wrap canvas { width: 100% !important; max-height: 400px; }
+
+/* ====== DETAIL CHART (COMPANY) ====== */
+.detail-chart-area {
+  margin-bottom: 16px;
+  display: none;
 }
 
-.flow-bar.pos { background: var(--green); }
-.flow-bar.neg { background: var(--red); }
+.detail-chart-area.active { display: block; }
 
-/* ─── Daily Table (Last 10 days) ─── */
-.daily-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.daily-table th {
-  padding: 8px 10px;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--border);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.daily-table th:first-child { text-align: left; }
-
-.daily-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  text-align: right;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.daily-table td:first-child {
-  text-align: left;
-  color: var(--text-secondary);
-  font-family: 'Noto Sans KR', sans-serif;
-}
-
-.daily-table tr:hover td { background: var(--bg-elevated); }
-
-.daily-table .pos { color: var(--green); }
-.daily-table .neg { color: var(--red); }
-.daily-table .zero { color: var(--text-muted); }
-.daily-table .total-col { font-weight: 600; }
-
-/* ─── Footer ─── */
-.footer {
-  text-align: center;
-  padding: 24px;
-  font-size: 11px;
-  color: var(--text-muted);
-  border-top: 1px solid var(--border);
-}
-
-.footer a { color: var(--text-secondary); text-decoration: none; }
-.footer a:hover { color: var(--text-primary); }
-
-/* ─── Responsive ─── */
-@media (max-width: 900px) {
-  .two-col { grid-template-columns: 1fr; }
-  .header { padding: 20px 16px 16px; }
-  .dashboard { padding: 16px; }
-  .chart-container { height: 260px; }
-  .chart-container.tall { height: 300px; }
-  .summary-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 500px) {
-  .summary-grid { grid-template-columns: 1fr; }
-  .card-value { font-size: 20px; }
-  .header h1 { font-size: 18px; }
-}
-
-/* ─── Loading ─── */
-.loading {
+.detail-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 200px;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-ticker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(18px, 4vw, 24px);
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.detail-name {
+  font-size: clamp(12px, 2.5vw, 14px);
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-sector {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #000;
+  font-weight: 600;
+}
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.detail-stat {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.detail-stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(13px, 3vw, 16px);
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.detail-stat-lbl {
+  font-size: 9px;
   color: var(--text-muted);
-  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
 }
 
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-right: 10px;
+.detail-legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
 }
 
+.detail-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.detail-legend-dot {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.detail-legend-bar {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ====== RANKING ====== */
+.rank-list { display: flex; flex-direction: column; gap: 4px; }
+
+.rank-item {
+  display: grid;
+  grid-template-columns: 26px 54px 1fr 72px;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rank-item:active, .rank-item:hover { background: var(--bg-card-hover); }
+.rank-item.selected {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 212, 170, 0.06);
+}
+
+.rank-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); text-align: center; }
+.rank-ticker { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--accent-blue); overflow: hidden; text-overflow: ellipsis; }
+
+.rank-bar-wrap { height: 20px; background: #1a1a28; border-radius: 3px; overflow: hidden; position: relative; }
+.rank-bar { height: 100%; border-radius: 3px; transition: width 0.8s ease; min-width: 2px; }
+.rank-bar-label { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 9px; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+.rank-amount { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-primary); text-align: right; white-space: nowrap; }
+
+/* ====== SECTOR LEGEND ====== */
+.sector-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-secondary); }
+.legend-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+
+/* ====== YIELD TABLE ====== */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -10px; padding: 0 10px; }
+.yield-table { width: 100%; border-collapse: collapse; min-width: 480px; }
+.yield-table th { text-align: left; font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; background: var(--bg-card); }
+.yield-table td { padding: 8px 8px; font-size: 12px; border-bottom: 1px solid var(--border); }
+.yield-table tr:active { background: var(--bg-card-hover); }
+.yield-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.yield-positive { color: var(--accent-cyan); }
+.yield-sector { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #1a1a28; color: var(--text-secondary); white-space: nowrap; }
+
+/* ====== BREADTH ====== */
+.breadth-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.breadth-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+.breadth-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ====== STATUS ====== */
+.data-status { text-align: center; padding: 48px 16px; color: var(--text-muted); font-size: 13px; }
+.data-status .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 14px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ====== TABS ====== */
+.tab-bar { display: flex; gap: 4px; margin-bottom: 16px; }
+.tab-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 12px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+.tab-btn:active { background: var(--bg-card-hover); }
+.tab-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); font-weight: 600; }
+
+/* ====== FOOTER ====== */
+.footer { text-align: center; padding: 24px 16px; font-size: 10px; color: var(--text-muted); line-height: 1.6; }
+
+/* ====== DESKTOP ====== */
+@media (min-width: 641px) {
+  .header { padding: 48px 24px 32px; }
+  .header p { font-size: 14px; }
+  .stats-bar { grid-template-columns: repeat(4, 1fr); }
+  .stat-item { padding: 20px 16px; }
+  .stat-label { font-size: 11px; }
+  .section { padding: 40px 24px; }
+  .section-header { margin-bottom: 28px; }
+  .section-desc { font-size: 13px; }
+  .chart-wrap { padding: 24px 16px; border-radius: 12px; }
+  .rank-item { grid-template-columns: 32px 70px 1fr 100px; gap: 10px; padding: 8px 12px; }
+  .rank-ticker { font-size: 13px; }
+  .rank-num { font-size: 12px; }
+  .rank-bar-wrap { height: 22px; }
+  .rank-bar-label { font-size: 10px; }
+  .rank-amount { font-size: 12px; }
+  .yield-table th { font-size: 10px; padding: 10px 12px; }
+  .yield-table td { padding: 10px 12px; font-size: 13px; }
+  .yield-table tr:hover { background: var(--bg-card-hover); }
+  .breadth-legend { grid-template-columns: repeat(4, auto); gap: 16px; }
+  .footer { font-size: 11px; padding: 32px 20px; }
+}
+
+/* ====== NARROW IFRAME ====== */
+@media (max-width: 400px) {
+  .header { padding: 24px 12px 18px; }
+  .header-badge { font-size: 9px; padding: 2px 10px; margin-bottom: 8px; }
+  .header h1 { font-size: 20px; }
+  .header p { font-size: 11px; }
+  .stat-item { padding: 10px 6px; }
+  .stat-value { font-size: 15px; }
+  .stat-label { font-size: 9px; }
+  .section { padding: 20px 10px; }
+  .section-title { font-size: 16px; }
+  .section-desc { font-size: 11px; }
+  .chart-wrap { padding: 10px 6px; border-radius: 8px; }
+  .rank-item { grid-template-columns: 22px 48px 1fr 60px; gap: 4px; padding: 5px 6px; }
+  .rank-num { font-size: 10px; }
+  .rank-ticker { font-size: 11px; }
+  .rank-bar-wrap { height: 16px; }
+  .rank-bar-label { font-size: 8px; }
+  .rank-amount { font-size: 10px; }
+  .breadth-legend { grid-template-columns: 1fr; gap: 4px; }
+  .breadth-legend-item { font-size: 10px; }
+  .detail-stats { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .detail-stat { padding: 6px 4px; }
+}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-top">
-    <h1>
-      <span class="btc-icon">₿</span>
-      비트코인 ETF 자금 흐름
-    </h1>
-    <div class="header-meta">
-      <span class="status"><span class="dot"></span> 매일 자동 업데이트</span>
-      <span id="lastUpdated">-</span>
+  <div class="header-badge">S&P 500 Buyback Tracker</div>
+  <h1>자사주 매입 트래커</h1>
+  <p>S&P 500 기업들의 자사주 매입 현황을 추적합니다</p>
+  <div class="header-meta">업데이트: <span id="lastUpdate" class="mono">-</span> · 수집: <span id="coverage" class="mono">-</span></div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-value" id="statTotalBuyback">-</div><div class="stat-label">총 매입 규모 (TTM)</div></div>
+  <div class="stat-item"><div class="stat-value" id="statActiveCount">-</div><div class="stat-label">매입 활동 기업 수</div></div>
+  <div class="stat-item"><div class="stat-value" id="statTopSector">-</div><div class="stat-label">최대 매입 섹터</div></div>
+  <div class="stat-item"><div class="stat-value" id="statAvgYield">-</div><div class="stat-label">평균 매입 수익률</div></div>
+</div>
+
+<!-- Section 1: Ranking + Detail Chart -->
+<div class="section" id="sec1">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <div class="section-title">자사주 매입 규모 랭킹</div>
+    <div class="section-desc">종목을 클릭하면 분기별 매입 현황을 확인할 수 있습니다</div>
+  </div>
+
+  <!-- Company Detail Chart (hidden until click) -->
+  <div class="detail-chart-area" id="detailArea">
+    <div class="chart-wrap">
+      <div class="detail-header">
+        <span class="detail-ticker" id="detailTicker">-</span>
+        <span class="detail-name" id="detailName">-</span>
+        <span class="detail-sector" id="detailSector">-</span>
+      </div>
+      <div class="detail-stats">
+        <div class="detail-stat">
+          <div class="detail-stat-val" id="detailTTM">-</div>
+          <div class="detail-stat-lbl">TTM 매입액</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-val" id="detailShares">-</div>
+          <div class="detail-stat-lbl">주식수 변화</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-val" id="detailPrice">-</div>
+          <div class="detail-stat-lbl">현재 주가</div>
+        </div>
+      </div>
+      <canvas id="detailChart"></canvas>
+      <div class="detail-legend">
+        <div class="detail-legend-item"><div class="detail-legend-bar" style="background:var(--accent-cyan)"></div>매입 금액</div>
+        <div class="detail-legend-item"><div class="detail-legend-dot" style="background:var(--accent-blue);height:3px"></div>주식수</div>
+        <div class="detail-legend-item"><div class="detail-legend-dot" style="background:var(--accent-orange);height:3px"></div>주가</div>
+      </div>
     </div>
   </div>
-  <div class="period-selector">
-    <button class="period-btn" data-period="14">2주</button>
-    <button class="period-btn" data-period="30">1개월</button>
-    <button class="period-btn active" data-period="60">2개월</button>
-    <button class="period-btn" data-period="0">전체</button>
+
+  <div class="tab-bar" id="rankTabs">
+    <button class="tab-btn active" data-view="amount">매입 금액</button>
+    <button class="tab-btn" data-view="yield">매입 수익률</button>
+  </div>
+  <div id="rankListContainer">
+    <div class="data-status"><div class="spinner"></div>데이터 로딩중...</div>
   </div>
 </div>
 
-<div class="dashboard">
-  <!-- Summary Cards -->
-  <div class="summary-grid" id="summaryCards">
-    <div class="loading"><div class="spinner"></div>데이터 로딩 중...</div>
+<!-- Section 2 -->
+<div class="section" id="sec2">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <div class="section-title">S&P 500 전체 자사주 매입 추이</div>
+    <div class="section-desc">분기별 S&P 500 기업 전체의 자사주 매입 총액</div>
   </div>
+  <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+</div>
 
-  <!-- Daily Net Flow Bar Chart -->
-  <div class="chart-section">
-    <div class="chart-title">📊 일별 순유입/유출</div>
-    <div class="chart-subtitle">미국 비트코인 현물 ETF 전체 · 단위: 백만 달러 (US$M)</div>
-    <div class="chart-container tall">
-      <canvas id="dailyFlowChart"></canvas>
-    </div>
+<!-- Section 3 -->
+<div class="section" id="sec3">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <div class="section-title">섹터별 매입 비중</div>
+    <div class="section-desc">GICS 섹터별 분기 자사주 매입 금액 비중</div>
   </div>
+  <div class="chart-wrap"><canvas id="sectorChart"></canvas></div>
+</div>
 
-  <!-- Cumulative + Top ETF Breakdown -->
-  <div class="two-col">
-    <div class="chart-section">
-      <div class="chart-title">📈 누적 순유입</div>
-      <div class="chart-subtitle">기간 내 누적 합계 (US$M)</div>
-      <div class="chart-container">
-        <canvas id="cumulativeChart"></canvas>
-      </div>
-    </div>
-
-    <div class="chart-section">
-      <div class="chart-title">🏢 ETF별 점유율</div>
-      <div class="chart-subtitle">기간 내 총 유입량 기준</div>
-      <div class="chart-container">
-        <canvas id="etfShareChart"></canvas>
-      </div>
-    </div>
+<!-- Section 4 -->
+<div class="section" id="sec4">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <div class="section-title">매입 수익률 TOP 20</div>
+    <div class="section-desc">자사주 매입액 ÷ 시가총액 기준 상위 기업</div>
   </div>
-
-  <!-- ETF Breakdown Stacked Bar -->
-  <div class="chart-section">
-    <div class="chart-title">🔍 주요 ETF별 일별 흐름</div>
-    <div class="chart-subtitle">IBIT · FBTC · GBTC · ARKB · BITB 상위 5개 ETF</div>
-    <div class="chart-container tall">
-      <canvas id="stackedChart"></canvas>
+  <div class="chart-wrap">
+    <div class="table-scroll">
+      <table class="yield-table" id="yieldTable">
+        <thead><tr><th>#</th><th>티커</th><th>기업명</th><th>섹터</th><th>수익률</th><th>매입액</th></tr></thead>
+        <tbody id="yieldBody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">데이터 로딩중...</td></tr></tbody>
+      </table>
     </div>
   </div>
+</div>
 
-  <!-- ETF Summary Table + Recent Daily -->
-  <div class="two-col">
-    <div class="chart-section">
-      <div class="chart-title">📋 ETF별 기간 합계</div>
-      <div class="chart-subtitle">선택 기간 내 ETF별 순유입/유출 합계</div>
-      <div class="etf-table-wrap" id="etfTableWrap"></div>
-    </div>
-
-    <div class="chart-section">
-      <div class="chart-title">📅 최근 10일 상세</div>
-      <div class="chart-subtitle">ETF별 일별 순유입/유출 (US$M)</div>
-      <div class="etf-table-wrap" id="dailyTableWrap" style="max-height: 500px; overflow-y: auto;"></div>
-    </div>
+<!-- Section 5 -->
+<div class="section" id="sec5">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <div class="section-title">매입 기업 수 추이</div>
+    <div class="section-desc">분기별 자사주 매입 활동 기업 수 (매입 강도별)</div>
   </div>
-
-  <!-- Weekly Summary -->
-  <div class="chart-section">
-    <div class="chart-title">📆 주간 흐름 요약</div>
-    <div class="chart-subtitle">주차별 순유입/유출 합계 (US$M)</div>
-    <div class="chart-container">
-      <canvas id="weeklyChart"></canvas>
-    </div>
+  <div class="breadth-legend">
+    <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-cyan)"></div>대규모 (>$1B)</div>
+    <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-blue)"></div>중간 매입</div>
+    <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:var(--accent-purple)"></div>소규모 매입</div>
+    <div class="breadth-legend-item"><div class="breadth-legend-dot" style="background:#2a2a3a"></div>매입 없음</div>
   </div>
+  <div class="chart-wrap"><canvas id="breadthChart"></canvas></div>
 </div>
 
 <div class="footer">
-  데이터 출처: <a href="https://bitbo.io/treasuries/etf-flows/" target="_blank">bitbo.io</a> ·
-  GitHub Actions로 매일 자동 업데이트 ·
-  투자 조언이 아닙니다
+  데이터 출처: Yahoo Finance (yfinance) · 매일 50개 종목 업데이트 (10일 주기 순환)<br>
+  자사주 매입 데이터는 분기 재무제표 기반이며, 실시간 매입 집행 내역과 다를 수 있습니다.
 </div>
 
 <script>
-// ─── Chart.js availability check ────────────────────────────────────────────
-if (typeof Chart === 'undefined') {
-  document.getElementById('summaryCards').innerHTML =
-    '<div class="loading" style="color: #ff3d71;">Chart.js 로딩 실패 — 페이지를 새로고침하세요</div>';
-  throw new Error('Chart.js failed to load');
-}
+// ============================================
+// CONFIG
+// ============================================
+const DATA_URL = 'buyback_data.json';
+const IS_MOBILE = window.innerWidth < 641;
+const IS_NARROW = window.innerWidth < 401;
 
-// ─── Chart.js Global Config ─────────────────────────────────────────────────
-Chart.defaults.color = '#8888a8';
-Chart.defaults.borderColor = '#1e1e30';
-Chart.defaults.font.family = "'JetBrains Mono', 'Noto Sans KR', monospace";
-Chart.defaults.font.size = 11;
-Chart.defaults.plugins.legend.labels.boxWidth = 12;
-Chart.defaults.plugins.legend.labels.padding = 16;
+let GLOBAL_DATA = null;
+let detailChartInstance = null;
+let selectedSymbol = null;
 
-const COLORS = {
-  IBIT: '#3366ff',
-  FBTC: '#00d68f',
-  GBTC: '#ff3d71',
-  ARKB: '#ffaa00',
-  BITB: '#9966ff',
-  BTC: '#00cfff',
-  HODL: '#ff6b35',
-  BTCO: '#44aaee',
-  BRRR: '#ee44aa',
-  EZBC: '#66ee44',
-  BTCW: '#eeee44',
-  DEFI: '#aa66ee',
+const SECTOR_COLORS = {
+  'Technology':'#4a90ff','Information Technology':'#4a90ff',
+  'Financial Services':'#22c55e','Financials':'#22c55e',
+  'Healthcare':'#ff4d6a','Health Care':'#ff4d6a',
+  'Consumer Cyclical':'#ff8c42','Consumer Discretionary':'#ff8c42',
+  'Consumer Defensive':'#a855f7','Consumer Staples':'#a855f7',
+  'Energy':'#ffd644','Industrials':'#00d4aa',
+  'Basic Materials':'#e879a0','Materials':'#e879a0',
+  'Real Estate':'#64748b','Utilities':'#818cf8',
+  'Communication Services':'#f97316',
 };
 
-const TOP_ETFS = ['IBIT', 'FBTC', 'GBTC', 'ARKB', 'BITB'];
+const SECTOR_KO = {
+  'Technology':'기술','Information Technology':'기술',
+  'Financial Services':'금융','Financials':'금융',
+  'Healthcare':'헬스케어','Health Care':'헬스케어',
+  'Consumer Cyclical':'경기소비재','Consumer Discretionary':'경기소비재',
+  'Consumer Defensive':'필수소비재','Consumer Staples':'필수소비재',
+  'Energy':'에너지','Industrials':'산업재',
+  'Basic Materials':'소재','Materials':'소재',
+  'Real Estate':'부동산','Utilities':'유틸리티',
+  'Communication Services':'커뮤니케이션',
+};
 
-let allData = null;
-let charts = {};
-let currentPeriod = 60;
-
-// ─── Data Loading ───────────────────────────────────────────────────────────
-async function loadData() {
-  try {
-    const resp = await fetch('data/etf_flows.json');
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
-    allData = await resp.json();
-    console.log(`[ETF] Loaded ${allData.daily_flows.length} records`);
-    renderDashboard();
-  } catch (e) {
-    console.error('Failed to load data:', e);
-    document.getElementById('summaryCards').innerHTML =
-      '<div class="loading" style="color: var(--red);">데이터 로딩 실패 — data/etf_flows.json 파일을 확인하세요<br><small>' + e.message + '</small></div>';
-  }
+function getSectorColor(s) { return SECTOR_COLORS[s] || '#666'; }
+function getSectorKo(s) { return SECTOR_KO[s] || s; }
+function formatB(v) {
+  const a = Math.abs(v);
+  if (a >= 1e12) return `$${(a/1e12).toFixed(1)}T`;
+  if (a >= 1e9) return `$${(a/1e9).toFixed(1)}B`;
+  if (a >= 1e6) return `$${(a/1e6).toFixed(0)}M`;
+  return `$${a.toLocaleString()}`;
 }
 
-function getFilteredData() {
-  if (!allData) return [];
-  const flows = allData.daily_flows;
-  if (currentPeriod === 0) return flows;
-  return flows.slice(-currentPeriod);
+// ============================================
+// DATA PROCESSING
+// ============================================
+function getTTMBuyback(q) {
+  const s = [...q].sort((a,b) => b.date.localeCompare(a.date));
+  return s.slice(0,4).reduce((t,x) => t + Math.abs(Math.min(x.buyback_amount,0)), 0);
 }
 
-// ─── Utilities ──────────────────────────────────────────────────────────────
-function fmt(val) {
-  if (val === 0) return '0.0';
-  const sign = val > 0 ? '+' : '';
-  return sign + val.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+function getQuarterLabel(d) {
+  const dt = new Date(d);
+  return `${dt.getFullYear()} Q${Math.ceil((dt.getMonth()+1)/3)}`;
 }
 
-function fmtShort(val) {
-  const abs = Math.abs(val);
-  if (abs >= 1000) return (val > 0 ? '+' : '') + (val / 1000).toFixed(1) + 'B';
-  return fmt(val);
+function getQuarterlyAggregates(data) {
+  const q = {};
+  Object.entries(data).forEach(([,info]) => {
+    info.quarters.forEach(x => {
+      const l = getQuarterLabel(x.date);
+      if (!q[l]) q[l] = { total:0, bySector:{}, companies:{heavy:0,medium:0,light:0,none:0} };
+      const bb = Math.abs(Math.min(x.buyback_amount,0));
+      q[l].total += bb;
+      const sec = info.sector||'Unknown';
+      q[l].bySector[sec] = (q[l].bySector[sec]||0) + bb;
+      if (bb > 1e9) q[l].companies.heavy++;
+      else if (bb > 1e8) q[l].companies.medium++;
+      else if (bb > 0) q[l].companies.light++;
+      else q[l].companies.none++;
+    });
+  });
+  return q;
 }
 
-function formatDate(iso) {
-  const d = new Date(iso + 'T00:00:00');
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+// ============================================
+// CHART DEFAULTS
+// ============================================
+function chartDefaults() {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: IS_NARROW ? 1 : IS_MOBILE ? 1.3 : 2,
+    interaction: { mode:'index', intersect:false },
+    plugins: {
+      tooltip: {
+        backgroundColor:'#1a1a28', titleColor:'#e8e8f0', bodyColor:'#e8e8f0',
+        borderColor:'#2a2a40', borderWidth:1,
+        titleFont:{ size: IS_MOBILE?11:12 }, bodyFont:{ size: IS_MOBILE?11:12 },
+        padding: IS_MOBILE?8:10,
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color:'#55556a',
+          font:{ size: IS_NARROW?8:IS_MOBILE?9:10, family:'JetBrains Mono' },
+          maxRotation: IS_MOBILE?60:45, autoSkip:true,
+          maxTicksLimit: IS_NARROW?6:IS_MOBILE?8:20,
+        },
+        grid:{ color:'#1e1e30', display:false }
+      },
+      y: {
+        ticks: {
+          color:'#55556a',
+          font:{ size: IS_NARROW?8:IS_MOBILE?9:10, family:'JetBrains Mono' },
+          maxTicksLimit: IS_MOBILE?5:8,
+        },
+        grid:{ color:'#1e1e30' }
+      }
+    }
+  };
 }
 
-function formatDateFull(iso) {
-  const d = new Date(iso + 'T00:00:00');
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-}
+// ============================================
+// COMPANY DETAIL CHART
+// ============================================
+function showDetailChart(symbol) {
+  const info = GLOBAL_DATA[symbol];
+  if (!info) return;
 
-function getWeekKey(iso) {
-  const d = new Date(iso + 'T00:00:00');
-  const onejan = new Date(d.getFullYear(), 0, 1);
-  const week = Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7);
-  return `${d.getFullYear()}-W${String(week).padStart(2, '0')}`;
-}
-
-// ─── Render All ─────────────────────────────────────────────────────────────
-function renderDashboard() {
-  const data = getFilteredData();
-  if (!data.length) return;
-
-  renderSummaryCards(data);
-  renderDailyFlowChart(data);
-  renderCumulativeChart(data);
-  renderETFShareChart(data);
-  renderStackedChart(data);
-  renderETFTable(data);
-  renderDailyTable(data);
-  renderWeeklyChart(data);
+  selectedSymbol = symbol;
+  const area = document.getElementById('detailArea');
+  area.classList.add('active');
 
   // Update header
-  if (allData.metadata.last_updated) {
-    const d = new Date(allData.metadata.last_updated);
-    document.getElementById('lastUpdated').textContent = `마지막 업데이트: ${d.toLocaleDateString('ko-KR')}`;
-  }
-}
+  document.getElementById('detailTicker').textContent = symbol;
+  document.getElementById('detailName').textContent = info.name || '';
+  const sectorEl = document.getElementById('detailSector');
+  sectorEl.textContent = getSectorKo(info.sector);
+  sectorEl.style.background = getSectorColor(info.sector);
 
-// ─── Summary Cards ──────────────────────────────────────────────────────────
-function renderSummaryCards(data) {
-  const latest = data[data.length - 1];
-  const cumulative = data.reduce((sum, d) => sum + d.total, 0);
-  
-  // Streak
-  let streak = 0;
-  const lastSign = latest.total >= 0 ? 1 : -1;
-  for (let i = data.length - 1; i >= 0; i--) {
-    if ((data[i].total >= 0 ? 1 : -1) === lastSign) streak++;
-    else break;
-  }
+  // Stats
+  const ttm = getTTMBuyback(info.quarters);
+  document.getElementById('detailTTM').textContent = formatB(ttm);
 
-  // 7-day total
-  const last7 = data.slice(-7);
-  const weekTotal = last7.reduce((sum, d) => sum + d.total, 0);
+  const sorted = [...info.quarters].sort((a,b) => b.date.localeCompare(a.date));
+  const latestShares = sorted[0]?.shares_outstanding || 0;
+  const oldestShares = sorted[sorted.length-1]?.shares_outstanding || 0;
+  const sharesChange = oldestShares > 0 ? ((latestShares - oldestShares) / oldestShares * 100) : 0;
+  document.getElementById('detailShares').textContent = sharesChange !== 0 ? `${sharesChange > 0 ? '+' : ''}${sharesChange.toFixed(1)}%` : '-';
+  document.getElementById('detailShares').style.color = sharesChange < 0 ? 'var(--accent-cyan)' : sharesChange > 0 ? 'var(--accent-red)' : 'var(--text-muted)';
 
-  // Average daily
-  const avgDaily = cumulative / data.length;
+  const latestPrice = info.current_price || sorted[0]?.price || 0;
+  document.getElementById('detailPrice').textContent = latestPrice > 0 ? `$${latestPrice.toFixed(0)}` : '-';
 
-  // Biggest single day
-  let maxDay = data[0], minDay = data[0];
-  data.forEach(d => {
-    if (d.total > maxDay.total) maxDay = d;
-    if (d.total < minDay.total) minDay = d;
-  });
+  // Prepare chart data (chronological)
+  const chronoQ = [...info.quarters].sort((a,b) => a.date.localeCompare(b.date));
+  const labels = chronoQ.map(q => getQuarterLabel(q.date));
+  const buybackVals = chronoQ.map(q => Math.abs(Math.min(q.buyback_amount, 0)) / 1e9);
+  const sharesVals = chronoQ.map(q => q.shares_outstanding > 0 ? q.shares_outstanding / 1e9 : null);
+  const priceVals = chronoQ.map(q => q.price > 0 ? q.price : null);
 
-  const cards = [
+  // Destroy old chart
+  if (detailChartInstance) detailChartInstance.destroy();
+
+  const ctx = document.getElementById('detailChart').getContext('2d');
+  const datasets = [
     {
-      label: '최근 일별 순유입',
-      value: fmt(latest.total),
-      cls: latest.total >= 0 ? 'positive' : 'negative',
-      sub: formatDateFull(latest.date),
-    },
-    {
-      label: '기간 누적',
-      value: fmtShort(cumulative),
-      cls: cumulative >= 0 ? 'positive' : 'negative',
-      sub: `${data.length}거래일 합계`,
-    },
-    {
-      label: '최근 7일',
-      value: fmt(weekTotal),
-      cls: weekTotal >= 0 ? 'positive' : 'negative',
-      sub: `일평균 ${fmt(weekTotal / Math.min(7, last7.length))}M`,
-    },
-    {
-      label: lastSign > 0 ? '연속 유입' : '연속 유출',
-      value: `${streak}일`,
-      cls: 'neutral',
-      sub: lastSign > 0 ? '📈 유입 지속 중' : '📉 유출 지속 중',
-    },
-    {
-      label: '최대 유입일',
-      value: fmt(maxDay.total),
-      cls: 'positive',
-      sub: formatDateFull(maxDay.date),
-    },
-    {
-      label: '최대 유출일',
-      value: fmt(minDay.total),
-      cls: 'negative',
-      sub: formatDateFull(minDay.date),
-    },
+      label: '매입 금액 ($B)',
+      type: 'bar',
+      data: buybackVals,
+      backgroundColor: 'rgba(0, 212, 170, 0.7)',
+      borderColor: '#00d4aa',
+      borderWidth: 1,
+      borderRadius: 3,
+      yAxisID: 'y',
+      order: 2,
+    }
   ];
 
-  document.getElementById('summaryCards').innerHTML = cards.map(c => `
-    <div class="card">
-      <div class="card-label">${c.label}</div>
-      <div class="card-value ${c.cls}">${c.value}</div>
-      <div class="card-sub">${c.sub}</div>
-    </div>
-  `).join('');
-}
-
-// ─── Daily Flow Bar Chart ───────────────────────────────────────────────────
-function renderDailyFlowChart(data) {
-  const ctx = document.getElementById('dailyFlowChart');
-  if (charts.daily) charts.daily.destroy();
-
-  const bgColors = data.map(d => d.total >= 0 ? '#00d68f' : '#ff3d71');
-  const hoverBg = data.map(d => d.total >= 0 ? '#00d68fcc' : '#ff3d71cc');
-
-  charts.daily = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: data.map(d => formatDate(d.date)),
-      datasets: [{
-        label: '순유입 (US$M)',
-        data: data.map(d => d.total),
-        backgroundColor: bgColors,
-        hoverBackgroundColor: hoverBg,
-        borderWidth: 0,
-        borderRadius: 2,
-        barPercentage: 0.85,
-      }]
+  const scales = {
+    x: {
+      ticks: {
+        color:'#55556a',
+        font:{ size: IS_NARROW?7:IS_MOBILE?8:10, family:'JetBrains Mono' },
+        maxRotation:60, autoSkip:true,
+        maxTicksLimit: IS_NARROW?5:IS_MOBILE?6:12,
+      },
+      grid:{ display:false }
     },
+    y: {
+      position: 'left',
+      title: { display: !IS_NARROW, text: '매입 금액 ($B)', color:'#00d4aa', font:{ size:10 } },
+      ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:10, family:'JetBrains Mono' }, callback: v => `$${v.toFixed(1)}B` },
+      grid:{ color:'#1e1e30' },
+    }
+  };
+
+  // Add shares line if data available
+  const hasShares = sharesVals.some(v => v !== null && v > 0);
+  if (hasShares) {
+    datasets.push({
+      label: '주식수 (B)',
+      type: 'line',
+      data: sharesVals,
+      borderColor: '#4a90ff',
+      backgroundColor: 'rgba(74,144,255,0.1)',
+      borderWidth: 2,
+      pointRadius: IS_MOBILE ? 1 : 2,
+      pointHoverRadius: 4,
+      tension: 0.3,
+      yAxisID: 'y1',
+      order: 1,
+    });
+    scales.y1 = {
+      position: 'right',
+      title: { display: !IS_NARROW, text: '주식수 (B)', color:'#4a90ff', font:{ size:10 } },
+      ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:10, family:'JetBrains Mono' }, callback: v => `${v.toFixed(1)}B` },
+      grid:{ display:false },
+    };
+  }
+
+  // Add price line if data available
+  const hasPrice = priceVals.some(v => v !== null && v > 0);
+  if (hasPrice) {
+    const priceAxisId = hasShares ? 'y2' : 'y1';
+    datasets.push({
+      label: '주가 ($)',
+      type: 'line',
+      data: priceVals,
+      borderColor: '#ff8c42',
+      backgroundColor: 'rgba(255,140,66,0.1)',
+      borderWidth: 2,
+      borderDash: [4, 2],
+      pointRadius: IS_MOBILE ? 0 : 2,
+      pointHoverRadius: 4,
+      tension: 0.3,
+      yAxisID: priceAxisId,
+      order: 0,
+    });
+    if (!hasShares) {
+      scales.y1 = {
+        position: 'right',
+        title: { display: !IS_NARROW, text: '주가 ($)', color:'#ff8c42', font:{ size:10 } },
+        ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:10, family:'JetBrains Mono' }, callback: v => `$${v}` },
+        grid:{ display:false },
+      };
+    } else {
+      scales.y2 = {
+        position: 'right',
+        title: { display: false },
+        ticks: { color:'#55556a', font:{ size: IS_MOBILE?8:9, family:'JetBrains Mono' }, callback: v => `$${v}`, maxTicksLimit: 4 },
+        grid:{ display:false },
+      };
+    }
+  }
+
+  detailChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
+      aspectRatio: IS_NARROW ? 1.1 : IS_MOBILE ? 1.4 : 2.2,
+      interaction: { mode:'index', intersect:false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#1a1a28',
-          borderColor: '#2a2a45',
-          borderWidth: 1,
-          titleColor: '#e8e8f0',
-          bodyColor: '#e8e8f0',
-          padding: 12,
+          backgroundColor:'#1a1a28', titleColor:'#e8e8f0', bodyColor:'#e8e8f0',
+          borderColor:'#2a2a40', borderWidth:1,
+          titleFont:{ size:11 }, bodyFont:{ size:11 }, padding:8,
           callbacks: {
-            title: (items) => {
-              const idx = items[0].dataIndex;
-              return formatDateFull(data[idx].date);
-            },
-            label: (item) => {
-              const val = item.raw;
-              const sign = val >= 0 ? '+' : '';
-              return `순유입: ${sign}${val.toFixed(1)}M`;
-            },
-            afterLabel: (item) => {
-              const idx = item.dataIndex;
-              const d = data[idx];
-              const lines = [];
-              TOP_ETFS.forEach(t => {
-                const v = d.flows[t];
-                if (v !== 0) lines.push(`  ${t}: ${v > 0 ? '+' : ''}${v.toFixed(1)}M`);
-              });
-              return lines;
+            label: function(ctx) {
+              const lbl = ctx.dataset.label;
+              if (lbl.includes('매입')) return `매입: $${ctx.parsed.y.toFixed(2)}B`;
+              if (lbl.includes('주식')) return `주식수: ${ctx.parsed.y.toFixed(2)}B`;
+              if (lbl.includes('주가')) return `주가: $${ctx.parsed.y.toFixed(2)}`;
+              return `${lbl}: ${ctx.parsed.y}`;
             }
           }
         }
       },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 15 }
-        },
-        y: {
-          grid: { color: '#1e1e3044' },
-          ticks: {
-            callback: v => (v > 0 ? '+' : '') + v
-          }
-        }
-      }
+      scales
     }
   });
+
+  // Highlight selected in ranking
+  document.querySelectorAll('.rank-item').forEach(el => {
+    el.classList.toggle('selected', el.dataset.symbol === symbol);
+  });
+
+  // Scroll to chart
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ─── Cumulative Chart ───────────────────────────────────────────────────────
-function renderCumulativeChart(data) {
-  const ctx = document.getElementById('cumulativeChart');
-  if (charts.cumulative) charts.cumulative.destroy();
-
-  let cumulative = 0;
-  const cumData = data.map(d => {
-    cumulative += d.total;
-    return cumulative;
+// ============================================
+// RENDERING
+// ============================================
+function renderStats(data) {
+  let totalTTM = 0, activeCount = 0;
+  const sectorTotals = {};
+  Object.values(data).forEach(info => {
+    const ttm = getTTMBuyback(info.quarters);
+    totalTTM += ttm;
+    if (ttm > 0) activeCount++;
+    const sec = info.sector||'Unknown';
+    sectorTotals[sec] = (sectorTotals[sec]||0) + ttm;
   });
-
-  charts.cumulative = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: data.map(d => formatDate(d.date)),
-      datasets: [{
-        label: '누적 순유입 (US$M)',
-        data: cumData,
-        borderColor: '#3366ff',
-        backgroundColor: '#3366ff15',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        borderWidth: 2,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1a28',
-          borderColor: '#2a2a45',
-          borderWidth: 1,
-          callbacks: {
-            title: (items) => formatDateFull(data[items[0].dataIndex].date),
-            label: (item) => `누적: ${fmt(item.raw)}M`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
-        },
-        y: {
-          grid: { color: '#1e1e3044' },
-          ticks: { callback: v => fmtShort(v) }
-        }
-      }
-    }
-  });
+  document.getElementById('statTotalBuyback').textContent = formatB(totalTTM);
+  document.getElementById('statActiveCount').textContent = `${activeCount}개`;
+  const top = Object.entries(sectorTotals).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('statTopSector').textContent = top ? getSectorKo(top[0]) : '-';
+  document.getElementById('statAvgYield').textContent = activeCount > 0 ? `${activeCount}개 활동중` : '-';
 }
 
-// ─── ETF Share Doughnut ─────────────────────────────────────────────────────
-function renderETFShareChart(data) {
-  const ctx = document.getElementById('etfShareChart');
-  if (charts.share) charts.share.destroy();
+function renderRanking(data, viewType) {
+  const container = document.getElementById('rankListContainer');
+  const items = Object.entries(data).map(([symbol, info]) => ({
+    symbol, name: info.name, sector: info.sector,
+    ttm: getTTMBuyback(info.quarters),
+    marketCap: info.market_cap || 0,
+  })).filter(d => d.ttm > 0);
 
-  // Calc total inflows per ETF
-  const totals = {};
-  allData.metadata.tickers.forEach(t => { totals[t] = 0; });
-  data.forEach(d => {
-    Object.entries(d.flows).forEach(([t, v]) => {
-      totals[t] = (totals[t] || 0) + v;
-    });
-  });
+  if (viewType === 'yield') {
+    items.forEach(d => d.yieldPct = d.marketCap > 0 ? (d.ttm / d.marketCap * 100) : 0);
+    items.sort((a,b) => b.yieldPct - a.yieldPct);
+  } else {
+    items.sort((a,b) => b.ttm - a.ttm);
+  }
 
-  // Sort by absolute value
-  const sorted = Object.entries(totals).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
-  const top6 = sorted.slice(0, 6);
-  const othersVal = sorted.slice(6).reduce((s, [_, v]) => s + v, 0);
+  const top30 = items.slice(0, 30);
+  const maxVal = viewType === 'yield' ? (top30[0]?.yieldPct||1) : (top30[0]?.ttm||1);
+  const nameLen = IS_NARROW ? 10 : IS_MOBILE ? 14 : 20;
 
-  const labels = top6.map(([t]) => t).concat(othersVal !== 0 ? ['기타'] : []);
-  const values = top6.map(([_, v]) => v).concat(othersVal !== 0 ? [othersVal] : []);
-  const colors = top6.map(([t]) => COLORS[t]).concat(['#555570']);
-
-  charts.share = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{
-        data: values.map(Math.abs),
-        backgroundColor: colors,
-        borderColor: '#12121a',
-        borderWidth: 2,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '65%',
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: { padding: 12, font: { size: 11 } }
-        },
-        tooltip: {
-          backgroundColor: '#1a1a28',
-          borderColor: '#2a2a45',
-          borderWidth: 1,
-          callbacks: {
-            label: (item) => {
-              const val = values[item.dataIndex];
-              return ` ${item.label}: ${fmt(val)}M`;
-            }
-          }
-        }
-      }
-    }
-  });
-}
-
-// ─── Stacked Bar Chart (Top 5 ETFs) ────────────────────────────────────────
-function renderStackedChart(data) {
-  const ctx = document.getElementById('stackedChart');
-  if (charts.stacked) charts.stacked.destroy();
-
-  const datasets = TOP_ETFS.map(ticker => ({
-    label: ticker,
-    data: data.map(d => d.flows[ticker] || 0),
-    backgroundColor: COLORS[ticker] + 'cc',
-    borderWidth: 0,
-    borderRadius: 1,
-    barPercentage: 0.9,
-  }));
-
-  charts.stacked = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: data.map(d => formatDate(d.date)),
-      datasets,
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-          labels: { padding: 16 }
-        },
-        tooltip: {
-          backgroundColor: '#1a1a28',
-          borderColor: '#2a2a45',
-          borderWidth: 1,
-          mode: 'index',
-          callbacks: {
-            title: (items) => formatDateFull(data[items[0].dataIndex].date),
-            label: (item) => ` ${item.dataset.label}: ${fmt(item.raw)}M`,
-          }
-        }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          grid: { display: false },
-          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 15 }
-        },
-        y: {
-          stacked: true,
-          grid: { color: '#1e1e3044' },
-          ticks: { callback: v => (v > 0 ? '+' : '') + v }
-        }
-      }
-    }
-  });
-}
-
-// ─── ETF Summary Table ──────────────────────────────────────────────────────
-function renderETFTable(data) {
-  const totals = {};
-  allData.metadata.tickers.forEach(t => { totals[t] = 0; });
-  data.forEach(d => {
-    Object.entries(d.flows).forEach(([t, v]) => {
-      totals[t] = (totals[t] || 0) + v;
-    });
-  });
-
-  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-  const maxAbs = Math.max(...sorted.map(([_, v]) => Math.abs(v)), 1);
-
-  const info = allData.metadata.etf_info;
-
-  let html = `<table class="etf-table">
-    <thead><tr>
-      <th>ETF</th>
-      <th>발행사</th>
-      <th style="text-align:right">순유입 (US$M)</th>
-      <th>비중</th>
-    </tr></thead><tbody>`;
-
-  sorted.forEach(([ticker, total]) => {
-    const cls = total > 0.5 ? 'pos' : total < -0.5 ? 'neg' : 'zero';
-    const pct = (Math.abs(total) / maxAbs) * 100;
-    const barCls = total >= 0 ? 'pos' : 'neg';
-
-    html += `<tr>
-      <td class="ticker" style="color: ${COLORS[ticker] || 'inherit'}">${ticker}</td>
-      <td class="issuer">${info[ticker]?.issuer || '-'}</td>
-      <td class="flow-value ${cls}" style="text-align:right">${fmt(total)}</td>
-      <td class="flow-bar-cell">
-        <div class="flow-bar-wrap">
-          <div class="flow-bar ${barCls}" style="width: ${pct}%"></div>
+  let html = '<div class="rank-list">';
+  top30.forEach((item, i) => {
+    const val = viewType === 'yield' ? item.yieldPct : item.ttm;
+    const pct = (val / maxVal * 100).toFixed(1);
+    const color = getSectorColor(item.sector);
+    const display = viewType === 'yield' ? `${item.yieldPct.toFixed(1)}%` : formatB(item.ttm);
+    const sel = item.symbol === selectedSymbol ? ' selected' : '';
+    html += `
+      <div class="rank-item${sel}" data-symbol="${item.symbol}" onclick="showDetailChart('${item.symbol}')">
+        <div class="rank-num">${i+1}</div>
+        <div class="rank-ticker">${item.symbol}</div>
+        <div class="rank-bar-wrap">
+          <div class="rank-bar" style="width:${pct}%;background:${color}"></div>
+          <div class="rank-bar-label">${item.name?.substring(0, nameLen)||''}</div>
         </div>
-      </td>
-    </tr>`;
+        <div class="rank-amount">${display}</div>
+      </div>`;
   });
+  html += '</div>';
 
-  html += '</tbody></table>';
-  document.getElementById('etfTableWrap').innerHTML = html;
+  const secs = [...new Set(top30.map(d => d.sector))].filter(Boolean);
+  html += '<div class="sector-legend">';
+  secs.forEach(s => {
+    html += `<div class="legend-item"><div class="legend-dot" style="background:${getSectorColor(s)}"></div>${getSectorKo(s)}</div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
 }
 
-// ─── Daily Detail Table ─────────────────────────────────────────────────────
-function renderDailyTable(data) {
-  const recent = data.slice(-10).reverse();
-  const mainTickers = ['IBIT', 'FBTC', 'GBTC', 'ARKB', 'BITB'];
+function renderTrendChart(data) {
+  const agg = getQuarterlyAggregates(data);
+  const labels = Object.keys(agg).sort();
+  const recent = labels.slice(IS_MOBILE ? -12 : -20);
+  const values = recent.map(q => agg[q].total / 1e9);
+  const opts = chartDefaults();
+  opts.plugins.legend = { display:false };
+  opts.plugins.tooltip.callbacks = { label: ctx => `$${ctx.parsed.y.toFixed(1)}B` };
+  opts.scales.y.ticks.callback = v => `$${v}B`;
 
-  let html = `<table class="daily-table">
-    <thead><tr>
-      <th>날짜</th>
-      ${mainTickers.map(t => `<th>${t}</th>`).join('')}
-      <th>합계</th>
-    </tr></thead><tbody>`;
-
-  recent.forEach(d => {
-    html += `<tr>
-      <td>${formatDate(d.date)}</td>
-      ${mainTickers.map(t => {
-        const v = d.flows[t] || 0;
-        const cls = v > 0.5 ? 'pos' : v < -0.5 ? 'neg' : 'zero';
-        return `<td class="${cls}">${v > 0 ? '+' : ''}${v.toFixed(1)}</td>`;
-      }).join('')}
-      <td class="total-col ${d.total >= 0 ? 'pos' : 'neg'}">${fmt(d.total)}</td>
-    </tr>`;
-  });
-
-  html += '</tbody></table>';
-  document.getElementById('dailyTableWrap').innerHTML = html;
-}
-
-// ─── Weekly Chart ───────────────────────────────────────────────────────────
-function renderWeeklyChart(data) {
-  const ctx = document.getElementById('weeklyChart');
-  if (charts.weekly) charts.weekly.destroy();
-
-  const weeks = {};
-  data.forEach(d => {
-    const wk = getWeekKey(d.date);
-    if (!weeks[wk]) weeks[wk] = { total: 0, count: 0 };
-    weeks[wk].total += d.total;
-    weeks[wk].count++;
-  });
-
-  const weekLabels = Object.keys(weeks).sort();
-  const weekTotals = weekLabels.map(w => Math.round(weeks[w].total * 10) / 10);
-
-  charts.weekly = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: weekLabels,
-      datasets: [{
-        label: '주간 순유입 (US$M)',
-        data: weekTotals,
-        backgroundColor: weekTotals.map(v => v >= 0 ? '#00d68f88' : '#ff3d7188'),
-        borderColor: weekTotals.map(v => v >= 0 ? '#00d68f' : '#ff3d71'),
-        borderWidth: 1,
-        borderRadius: 4,
-        barPercentage: 0.7,
+  new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type:'bar', data: {
+      labels: recent,
+      datasets: [{ label:'매입 총액', data:values,
+        backgroundColor: values.map(v => { const r = v/Math.max(...values); return `rgba(0,212,170,${0.3+r*0.7})`; }),
+        borderColor:'rgba(0,212,170,0.8)', borderWidth:1, borderRadius:3,
       }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1a28',
-          borderColor: '#2a2a45',
-          borderWidth: 1,
-          callbacks: {
-            label: (item) => `주간 합계: ${fmt(item.raw)}M`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 10 } }
-        },
-        y: {
-          grid: { color: '#1e1e3044' },
-          ticks: { callback: v => (v > 0 ? '+' : '') + v }
-        }
-      }
-    }
+    }, options: opts
   });
 }
 
-// ─── Period Selector ────────────────────────────────────────────────────────
-document.querySelectorAll('.period-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelector('.period-btn.active').classList.remove('active');
-    btn.classList.add('active');
-    currentPeriod = parseInt(btn.dataset.period);
-    renderDashboard();
-  });
-});
+function renderSectorChart(data) {
+  const agg = getQuarterlyAggregates(data);
+  const labels = Object.keys(agg).sort().slice(IS_MOBILE ? -8 : -12);
+  const allSec = new Set();
+  labels.forEach(q => Object.keys(agg[q].bySector).forEach(s => allSec.add(s)));
+  const datasets = [...allSec].sort().map(sec => ({
+    label: getSectorKo(sec),
+    data: labels.map(q => (agg[q].bySector[sec]||0)/1e9),
+    backgroundColor: getSectorColor(sec)+'cc', borderColor: getSectorColor(sec), borderWidth:1,
+  }));
+  const opts = chartDefaults();
+  opts.scales.x.stacked = true; opts.scales.y.stacked = true;
+  opts.scales.y.ticks.callback = v => `$${v}B`;
+  opts.plugins.legend = { position:'bottom', labels:{ color:'#8888a8', font:{ size: IS_MOBILE?9:10 }, boxWidth: IS_MOBILE?8:12, padding: IS_MOBILE?6:10, usePointStyle:true } };
+  opts.plugins.tooltip.callbacks = { label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}B` };
 
-// ─── Init ───────────────────────────────────────────────────────────────────
-loadData();
+  new Chart(document.getElementById('sectorChart').getContext('2d'), {
+    type:'bar', data:{ labels, datasets }, options:opts
+  });
+}
+
+function renderYieldTable(data) {
+  const items = Object.entries(data).map(([symbol, info]) => {
+    const ttm = getTTMBuyback(info.quarters);
+    const mc = info.market_cap||0;
+    const yld = mc > 0 ? (ttm/mc*100) : 0;
+    return { symbol, name:info.name, sector:info.sector, ttm, yld };
+  }).filter(d => d.ttm > 0 && d.yld > 0);
+  items.sort((a,b) => b.yld - a.yld);
+  const nameLen = IS_NARROW ? 12 : IS_MOBILE ? 16 : 25;
+
+  document.getElementById('yieldBody').innerHTML = items.slice(0,20).map((item,i) => `
+    <tr>
+      <td class="mono" style="color:var(--text-muted)">${i+1}</td>
+      <td><span class="mono" style="color:var(--accent-blue);font-weight:600">${item.symbol}</span></td>
+      <td style="font-size:11px;color:var(--text-secondary)">${item.name?.substring(0,nameLen)||'-'}</td>
+      <td><span class="yield-sector">${getSectorKo(item.sector)}</span></td>
+      <td class="yield-val yield-positive mono">${item.yld.toFixed(2)}%</td>
+      <td class="mono" style="color:var(--text-primary)">${formatB(item.ttm)}</td>
+    </tr>`).join('');
+}
+
+function renderBreadthChart(data) {
+  const agg = getQuarterlyAggregates(data);
+  const labels = Object.keys(agg).sort().slice(IS_MOBILE ? -10 : -16);
+  const opts = chartDefaults();
+  opts.scales.x.stacked = true; opts.scales.y.stacked = true;
+  opts.scales.y.ticks.callback = v => `${v}개`;
+  opts.plugins.legend = { display:false };
+  opts.plugins.tooltip.callbacks = { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}개사` };
+
+  new Chart(document.getElementById('breadthChart').getContext('2d'), {
+    type:'bar', data: {
+      labels,
+      datasets: [
+        { label:'대규모 (>$1B)', data:labels.map(q=>agg[q].companies.heavy), backgroundColor:'#00d4aacc', borderColor:'#00d4aa', borderWidth:1 },
+        { label:'중간 매입', data:labels.map(q=>agg[q].companies.medium), backgroundColor:'#4a90ffcc', borderColor:'#4a90ff', borderWidth:1 },
+        { label:'소규모 매입', data:labels.map(q=>agg[q].companies.light), backgroundColor:'#a855f7cc', borderColor:'#a855f7', borderWidth:1 },
+        { label:'매입 없음', data:labels.map(q=>agg[q].companies.none), backgroundColor:'#2a2a3a', borderColor:'#3a3a4a', borderWidth:1 },
+      ]
+    }, options:opts
+  });
+}
+
+// ============================================
+// TABS & INIT
+// ============================================
+function setupTabs(data) {
+  const tabs = document.querySelectorAll('#rankTabs .tab-btn');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', function() {
+      tabs.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      renderRanking(data, this.dataset.view);
+    });
+  });
+}
+
+async function init() {
+  try {
+    const resp = await fetch(DATA_URL);
+    if (!resp.ok) throw new Error('Data not found');
+    const raw = await resp.json();
+    const data = raw.data || {};
+    GLOBAL_DATA = data;
+    const total = raw.sp500_list?.length || 500;
+    const collected = Object.keys(data).length;
+
+    document.getElementById('lastUpdate').textContent = raw.last_updated?.substring(0,10) || '-';
+    document.getElementById('coverage').textContent = `${collected}/${total}개`;
+
+    if (collected < 10) {
+      document.getElementById('rankListContainer').innerHTML =
+        '<div class="data-status">아직 충분한 데이터가 수집되지 않았습니다.<br>매일 50개 종목씩 수집중입니다. (현재 '+collected+'개)</div>';
+      return;
+    }
+
+    renderStats(data);
+    renderRanking(data, 'amount');
+    renderTrendChart(data);
+    renderSectorChart(data);
+    renderYieldTable(data);
+    renderBreadthChart(data);
+    setupTabs(data);
+
+    // Auto-select #1 ranked company
+    const topSymbol = Object.entries(data)
+      .map(([s,i]) => ({ s, ttm: getTTMBuyback(i.quarters) }))
+      .sort((a,b) => b.ttm - a.ttm)[0]?.s;
+    if (topSymbol) showDetailChart(topSymbol);
+
+  } catch (e) {
+    console.error('Failed to load data:', e);
+    document.getElementById('rankListContainer').innerHTML =
+      '<div class="data-status">데이터를 불러올 수 없습니다.<br>buyback_data.json 파일을 확인해주세요.</div>';
+  }
+}
+
+init();
 </script>
 </body>
 </html>
