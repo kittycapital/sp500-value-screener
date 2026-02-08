@@ -91,8 +91,8 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'IBM Ple
 .chart-dual{display:flex;flex-direction:column}
 .chart-dual-left{border-bottom:1px solid var(--border);height:320px}
 .chart-dual-left iframe{height:100%!important}
-.chart-dual-right{padding:16px;height:300px;overflow:hidden;position:relative}
-.chart-dual-right canvas{position:absolute;left:16px;right:16px;top:60px;bottom:24px}
+.chart-dual-right{padding:16px;height:320px;overflow:hidden;position:relative}
+.chart-dual-right canvas{position:absolute;left:16px;right:16px;top:60px;bottom:40px}
 @media(min-width:769px){.chart-sticky{position:sticky;top:0;z-index:10}}
 @media(max-width:768px){.chart-dual-left{height:280px}.chart-dual-right{height:260px}.split-grid{grid-template-columns:1fr}}
 .score-section{margin-bottom:28px}
@@ -377,7 +377,7 @@ c.font='10px JetBrains Mono';
 c.fillStyle='rgba(0,229,160,0.7)';c.fillText('저평가 (하위 25%)',a.right-110,Math.min(yLow+14,a.bottom-6));
 c.fillStyle='rgba(255,92,92,0.7)';c.fillText('고평가 (상위 25%)',a.right-110,Math.max(yHigh-6,a.top+14));
 c.restore();}};
-peChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'P/E',data:values,borderColor:'#58a6ff',backgroundColor:'transparent',borderWidth:2,pointStyle:ptStyle,pointRadius:ptR,pointHoverRadius:9,pointBackgroundColor:ptC,pointBorderColor:ptC,pointBorderWidth:0,fill:false,tension:0.35}]},plugins:[bandPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{bottom:8,right:4}},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c2536',borderColor:'#253449',borderWidth:1,titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:11},callbacks:{label:function(ct){const d=labels[ct.dataIndex];let t='P/E: '+ct.raw;if(caseDates.has(d)){const r=caseReturns[d];t+=' ◆ 6개월후: '+(r>0?'+':'')+r+'%';}if(ct.dataIndex===labels.length-1)t+=' (현재)';return t;},title:function(items){return items[0].label;}}}},scales:{x:{ticks:{color:'#8b949e',font:{family:'JetBrains Mono',size:9},maxRotation:45,minRotation:25,maxTicksLimit:8},grid:{color:'rgba(30,45,61,0.3)'}},y:{ticks:{color:'#8b949e',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(30,45,61,0.3)'}}}}});}
+peChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'P/E',data:values,borderColor:'#58a6ff',backgroundColor:'transparent',borderWidth:2,pointStyle:ptStyle,pointRadius:ptR,pointHoverRadius:9,pointBackgroundColor:ptC,pointBorderColor:ptC,pointBorderWidth:0,fill:false,tension:0.35}]},plugins:[bandPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{bottom:20,right:4}},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c2536',borderColor:'#253449',borderWidth:1,titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:11},callbacks:{label:function(ct){const d=labels[ct.dataIndex];let t='P/E: '+ct.raw;if(caseDates.has(d)){const r=caseReturns[d];t+=' ◆ 6개월후: '+(r>0?'+':'')+r+'%';}if(ct.dataIndex===labels.length-1)t+=' (현재)';return t;},title:function(items){return items[0].label;}}}},scales:{x:{ticks:{color:'#8b949e',font:{family:'JetBrains Mono',size:9},maxRotation:45,minRotation:25,maxTicksLimit:8},grid:{color:'rgba(30,45,61,0.3)'}},y:{ticks:{color:'#8b949e',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(30,45,61,0.3)'}}}}});}
 
 function renderTab6(){const f=document.getElementById('hist-filter').value;
 let st=DATA.stocks.filter(s=>{const hp=s.histPerformance;if(!hp||!hp.similarCount||hp.similarCount<2)return false;if(f==='cheap')return s.pePercentile<=25;if(f==='expensive')return s.pePercentile>=75;return true;});
