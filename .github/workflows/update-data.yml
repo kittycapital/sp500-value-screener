@@ -1,0 +1,35 @@
+name: Update S&P 500 Value Screener Data
+
+on:
+  schedule:
+    # 매일 한국시간 오전 7시 (UTC 22:00 전날)에 실행
+    - cron: '0 22 * * *'
+  workflow_dispatch: # 수동 실행 가능
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch data from FMP API
+        env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+        run: python fetch_data.py
+
+      - name: Commit and push data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/
+          git diff --quiet --cached || git commit -m "📊 Update S&P 500 data $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
