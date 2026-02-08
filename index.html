@@ -91,7 +91,7 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'IBM Ple
 .chart-dual{display:grid;grid-template-columns:1fr 1fr;height:400px}
 .chart-dual-left{border-right:1px solid var(--border)}
 .chart-dual-right{padding:16px;overflow:hidden;position:relative}
-.chart-dual-right canvas{position:absolute;left:16px;right:16px;top:40px;bottom:16px}
+.chart-dual-right canvas{position:absolute;left:16px;right:16px;top:46px;bottom:24px}
 @media(min-width:769px){.chart-sticky{position:sticky;top:0;z-index:10}}
 @media(max-width:768px){.chart-dual{grid-template-columns:1fr;height:auto}.chart-dual-left{border-right:none;border-bottom:1px solid var(--border);height:300px}.chart-dual-right{height:280px}.split-grid{grid-template-columns:1fr}}
 .score-section{margin-bottom:28px}
@@ -230,7 +230,7 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:'IBM Ple
 <div class="chart-panel-body" id="hist-chart-body">
 <div class="chart-dual">
 <div class="chart-dual-left" id="hist-tv-container"><div class="chart-panel-empty">👆 종목을 선택하면<br>TradingView 가격 차트 표시</div></div>
-<div class="chart-dual-right"><div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px">5년 P/E 히스토리</div><canvas id="pe-history-chart"></canvas></div>
+<div class="chart-dual-right"><div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px">5년 P/E 히스토리 &nbsp;<span style="color:#00e5a0">■</span> 저평가 구간 &nbsp;<span style="color:#ff5c5c">■</span> 고평가 구간 &nbsp;<span style="color:#00e5a0">●</span> 유사 시점</div><canvas id="pe-history-chart"></canvas></div>
 </div></div></div>
 <div class="filter-bar"><select class="filter-select" id="hist-filter" onchange="renderTab6()"><option value="cheap">저평가 구간 진입 종목</option><option value="expensive">고평가 구간 진입 종목</option><option value="all">전체</option></select></div>
 <div id="tab6-content"></div>
@@ -351,20 +351,24 @@ if(window.innerWidth<769)document.getElementById('hist-chart-panel').scrollIntoV
 function renderPEC(stock){
 const ctx=document.getElementById('pe-history-chart');if(peChart)peChart.destroy();
 const ph=stock.peHistory;const hp=stock.histPerformance;
-if(!ph||ph.length<3){ctx.parentElement.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:12px">P/E 히스토리 데이터 없음</div>';return;}
-// Full history line
+if(!ph||ph.length<3){ctx.parentElement.querySelector('div').innerHTML='5년 P/E 히스토리 — 데이터 없음';return;}
 const labels=ph.map(p=>p.date),values=ph.map(p=>p.pe);
-// Mark case dates on the line
 const caseDates=new Set((hp&&hp.cases||[]).map(c=>c.date));
 const caseReturns={};if(hp&&hp.cases)hp.cases.forEach(c=>{caseReturns[c.date]=c.return6m;});
 const ptR=labels.map(d=>caseDates.has(d)?7:2);
-const ptC=labels.map((d,i)=>{if(!caseDates.has(d))return'rgba(88,166,255,0.4)';return caseReturns[d]>=0?'#00e5a0':'#ff5c5c';});
+const ptC=labels.map(d=>{if(!caseDates.has(d))return'rgba(88,166,255,0.4)';return caseReturns[d]>=0?'#00e5a0':'#ff5c5c';});
 const ptBW=labels.map(d=>caseDates.has(d)?3:0);
-// Zone thresholds
 const sorted=[...values].filter(v=>v>0).sort((a,b)=>a-b);
 const low25=sorted[Math.floor(sorted.length*0.25)]||0;
 const high75=sorted[Math.floor(sorted.length*0.75)]||999;
-peChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'P/E',data:values,borderColor:'#58a6ff',backgroundColor:'rgba(88,166,255,0.06)',borderWidth:2,pointRadius:ptR,pointHoverRadius:8,pointBackgroundColor:ptC,pointBorderColor:ptC,pointBorderWidth:ptBW,fill:true,tension:0.35},{label:'저평가 구간',data:values.map(v=>v<=low25?v:null),borderColor:'transparent',backgroundColor:'rgba(0,229,160,0.15)',pointRadius:0,fill:true,spanGaps:false},{label:'고평가 구간',data:values.map(v=>v>=high75?v:null),borderColor:'transparent',backgroundColor:'rgba(255,92,92,0.12)',pointRadius:0,fill:true,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c2536',borderColor:'#253449',borderWidth:1,titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:11},callbacks:{label:function(ct){if(ct.datasetIndex!==0)return null;const d=labels[ct.dataIndex];let t='P/E: '+ct.raw;if(caseDates.has(d)){const r=caseReturns[d];t+=' ★ 6개월후: '+(r>0?'+':'')+r+'%';}if(ct.dataIndex===labels.length-1)t+=' (현재)';return t;},title:function(items){return items[0].label;}}}},scales:{x:{ticks:{color:'#555d66',font:{family:'JetBrains Mono',size:10},maxTicksLimit:10},grid:{color:'rgba(30,45,61,0.3)'}},y:{ticks:{color:'#555d66',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(30,45,61,0.3)'}}}}});}
+// Zone label plugin
+const zoneLabelPlugin={id:'zoneLabels',afterDraw:function(chart){const{ctx:c,chartArea:a,scales:{y}}=chart;if(!a)return;
+const ly=y.getPixelForValue(low25);const hy=y.getPixelForValue(high75);
+c.save();c.font='10px JetBrains Mono';c.globalAlpha=0.6;
+c.fillStyle='#00e5a0';c.fillText('저평가 (하위 25%)',a.left+6,Math.min(ly+14,a.bottom-4));
+c.fillStyle='#ff5c5c';c.fillText('고평가 (상위 25%)',a.left+6,Math.max(hy-6,a.top+14));
+c.restore();}};
+peChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'P/E',data:values,borderColor:'#58a6ff',backgroundColor:'rgba(88,166,255,0.06)',borderWidth:2,pointRadius:ptR,pointHoverRadius:8,pointBackgroundColor:ptC,pointBorderColor:ptC,pointBorderWidth:ptBW,fill:true,tension:0.35},{label:'저평가',data:values.map(v=>v<=low25?v:null),borderColor:'transparent',backgroundColor:'rgba(0,229,160,0.15)',pointRadius:0,fill:true,spanGaps:false},{label:'고평가',data:values.map(v=>v>=high75?v:null),borderColor:'transparent',backgroundColor:'rgba(255,92,92,0.12)',pointRadius:0,fill:true,spanGaps:false}]},plugins:[zoneLabelPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{bottom:6}},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c2536',borderColor:'#253449',borderWidth:1,titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:11},callbacks:{label:function(ct){if(ct.datasetIndex!==0)return null;const d=labels[ct.dataIndex];let t='P/E: '+ct.raw;if(caseDates.has(d)){const r=caseReturns[d];t+=' ★ 6개월후: '+(r>0?'+':'')+r+'%';}if(ct.dataIndex===labels.length-1)t+=' (현재)';return t;},title:function(items){return items[0].label;}}}},scales:{x:{ticks:{color:'#555d66',font:{family:'JetBrains Mono',size:9},maxRotation:45,minRotation:25,maxTicksLimit:8},grid:{color:'rgba(30,45,61,0.3)'}},y:{ticks:{color:'#555d66',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(30,45,61,0.3)'}}}}});}
 
 function renderTab6(){const f=document.getElementById('hist-filter').value;
 let st=DATA.stocks.filter(s=>{const hp=s.histPerformance;if(!hp||!hp.similarCount||hp.similarCount<2)return false;if(f==='cheap')return s.pePercentile<=25;if(f==='expensive')return s.pePercentile>=75;return true;});
