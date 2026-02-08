@@ -298,7 +298,8 @@ document.getElementById('score-chart-sub').textContent=s.sector+' · P/E '+fn(s.
 document.getElementById('score-period-btns').style.display='flex';
 const rm={['1M']:'1M',['3M']:'3M',['6M']:'6M',['1Y']:'12M',['5Y']:'60M'};
 embedTV(s.ticker,'score-chart-body',400,rm[scoreP]||'6M');
-document.querySelectorAll('#tab3-content .score-card').forEach(c=>c.classList.toggle('selected',c.dataset.ticker===t));
+document.querySelectorAll('#tab3-content .score-card').forEach(c=>c.classList.remove('selected'));
+const clickedSC=document.querySelector('#tab3-content .score-card[data-ticker="'+t+'"]');if(clickedSC)clickedSC.classList.add('selected');
 if(window.innerWidth<769)document.getElementById('score-chart-panel').scrollIntoView({behavior:'smooth',block:'start'});}
 function setScoreP(p){scoreP=p;document.querySelectorAll('#score-period-btns .period-btn').forEach(b=>b.classList.toggle('active',b.textContent===p));if(selScore)selScoreStock(selScore);}
 
@@ -343,7 +344,8 @@ sc2.textContent=JSON.stringify({autosize:true,symbol:t,interval:"W",timezone:"As
 d.appendChild(sc2);
 // PE Chart
 renderPEC(s);
-document.querySelectorAll('#tab6-content .hist-card').forEach(c=>c.classList.toggle('selected',c.dataset.ticker===t));
+document.querySelectorAll('#tab6-content .hist-card').forEach(c=>c.classList.remove('selected'));
+const clickedCard=document.querySelector('#tab6-content .hist-card[data-ticker="'+t+'"]');if(clickedCard)clickedCard.classList.add('selected');
 if(window.innerWidth<769)document.getElementById('hist-chart-panel').scrollIntoView({behavior:'smooth',block:'start'});}
 
 function renderPEC(stock){
