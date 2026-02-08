@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S&P 500 밸류에이션 스크리너</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #06080a;
+  --bg-secondary: #0d1117;
+  --bg-card: #131921;
+  --bg-card-hover: #1a2233;
+  --bg-elevated: #1c2536;
+  --border: #1e2d3d;
+  --border-light: #253449;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #555d66;
+  --green: #00e5a0;
+  --green-dim: #0a3d2e;
+  --green-bg: rgba(0,229,160,0.08);
+  --red: #ff5c5c;
+  --red-dim: #3d1515;
+  --red-bg: rgba(255,92,92,0.08);
+  --yellow: #ffc857;
+  --yellow-dim: #3d3015;
+  --yellow-bg: rgba(255,200,87,0.08);
+  --blue: #58a6ff;
+  --gold: #d4a843;
+  --accent: #00e5a0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'IBM Plex Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.header{background:linear-gradient(180deg,#0a1020,var(--bg-primary));border-bottom:1px solid var(--border);padding:24px 24px 18px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--gold),var(--accent),transparent)}
+.header-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,160,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.header-content{max-width:1400px;margin:0 auto;position:relative;z-index:1}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--gold));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:16px;color:var(--bg-primary)}
+.title-block h1{font-family:'Outfit',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.5px;background:linear-gradient(135deg,#fff 40%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.title-block .subtitle{font-size:11px;color:var(--text-muted);margin-top:1px;font-family:'JetBrains Mono',monospace}
+.update-badge{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:11px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px}
+.update-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.stats-bar{display:flex;gap:20px;flex-wrap:wrap}
+.stat-item{display:flex;align-items:center;gap:6px;font-size:12px}
+.stat-label{color:var(--text-muted)}
+.stat-value{font-family:'JetBrains Mono',monospace;font-weight:500}
+
+/* TAB NAV */
+.tab-nav{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-nav-inner{max-width:1400px;margin:0 auto;display:flex}
+.tab-btn{background:none;border:none;color:var(--text-muted);font-family:'IBM Plex Sans KR',sans-serif;font-size:13px;font-weight:500;padding:13px 18px;cursor:pointer;white-space:nowrap;position:relative;transition:color .2s;display:flex;align-items:center;gap:7px}
+.tab-btn:hover{color:var(--text-secondary)}
+.tab-btn.active{color:var(--accent)}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:14px;right:14px;height:2px;background:var(--accent);border-radius:2px 2px 0 0}
+.tab-emoji{font-size:14px}
+
+/* CONTENT */
+.tab-content{max-width:1400px;margin:0 auto;padding:20px 24px;display:none}
+.tab-content.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* FILTERS */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-select,.search-input{background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);font-family:'IBM Plex Sans KR',sans-serif;font-size:12px;padding:7px 12px;border-radius:7px;cursor:pointer;transition:border-color .2s}
+.search-input{font-family:'JetBrains Mono',monospace;color:var(--text-primary);width:180px}
+.search-input::placeholder{color:var(--text-muted)}
+.search-input:focus,.filter-select:focus{outline:none;border-color:var(--accent)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px}
+.data-table thead th{background:var(--bg-card);color:var(--text-muted);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);position:sticky;top:0;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.data-table thead th:hover{color:var(--text-secondary)}
+.data-table thead th.sorted{color:var(--accent)}
+.data-table tbody tr{transition:background .12s}
+.data-table tbody tr:hover{background:var(--bg-card-hover)}
+.data-table tbody td{padding:10px 14px;border-bottom:1px solid rgba(30,45,61,.3);font-family:'JetBrains Mono',monospace;font-size:12px}
+.ticker-cell{display:flex;align-items:center;gap:8px}
+.ticker-logo{width:26px;height:26px;border-radius:5px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--text-muted);border:1px solid var(--border);flex-shrink:0}
+.ticker-name{font-family:'Outfit',sans-serif;font-weight:600;font-size:13px}
+.ticker-company{font-family:'IBM Plex Sans KR',sans-serif;font-size:10px;color:var(--text-muted);margin-top:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sector-badge{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);font-size:10px;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.val-low{color:var(--green)}.val-mid{color:var(--yellow)}.val-high{color:var(--red)}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px}
+.page-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .2s}
+.page-btn:hover{border-color:var(--border-light);color:var(--text-primary)}
+.page-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,160,.06)}
+.page-info{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+
+/* DISCOUNT BARS (Tab 2) */
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.split-section-title{font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.discount-list{display:flex;flex-direction:column;gap:5px}
+.discount-row{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--bg-card);border-radius:7px;border:1px solid var(--border);transition:border-color .2s}
+.discount-row:hover{border-color:var(--border-light)}
+.discount-rank{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);width:20px;text-align:center}
+.discount-ticker{font-family:'Outfit',sans-serif;font-weight:600;font-size:12px;width:48px}
+.discount-name{font-size:10px;color:var(--text-muted);width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none}
+.discount-bar-wrap{flex:1;height:18px;background:rgba(255,255,255,.02);border-radius:3px;overflow:hidden;position:relative}
+.discount-bar-fill{height:100%;border-radius:3px;transition:width .6s}
+.discount-bar-fill.neg{background:linear-gradient(90deg,var(--red),var(--red-dim))}
+.discount-bar-fill.pos{background:linear-gradient(90deg,var(--green-dim),var(--green))}
+.discount-pct{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12px;width:58px;text-align:right}
+
+/* SCORE CARDS (Tab 3) */
+.score-section{margin-bottom:28px}
+.score-section-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.score-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .2s}
+.score-card:hover{border-color:var(--border-light)}
+.score-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.score-card-rank{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
+.score-card-ticker-row{display:flex;align-items:center;gap:8px}
+.score-card-ticker{font-family:'Outfit',sans-serif;font-weight:700;font-size:15px}
+.score-badge{padding:3px 9px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px}
+.score-badge.green{background:var(--green-bg);color:var(--green);border:1px solid rgba(0,229,160,.2)}
+.score-badge.red{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,92,92,.2)}
+.score-bar-track{height:5px;background:rgba(255,255,255,.03);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.score-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.score-metric{text-align:center}
+.score-metric-label{font-size:9px;color:var(--text-muted);margin-bottom:2px;font-family:'JetBrains Mono',monospace}
+.score-metric-val{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500}
+
+/* SECTOR HEATMAP (Tab 4) */
+.heatmap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.heatmap-cell{border-radius:10px;padding:16px;min-height:100px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s;cursor:pointer;border:1px solid transparent}
+.heatmap-cell:hover{transform:scale(1.02);border-color:rgba(255,255,255,.08)}
+.heatmap-cell.lg{grid-column:span 2;grid-row:span 2;min-height:220px}
+.heatmap-cell.md{grid-column:span 2}
+.heatmap-cell.cheap{background:linear-gradient(135deg,#062920,#0a3d2e)}
+.heatmap-cell.neutral{background:linear-gradient(135deg,#2a2510,#3d3015)}
+.heatmap-cell.expensive{background:linear-gradient(135deg,#2d1010,#3d1515)}
+.heatmap-sector{font-family:'Outfit',sans-serif;font-weight:600;font-size:14px}
+.heatmap-cell.lg .heatmap-sector{font-size:18px}
+.heatmap-pe{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700}
+.heatmap-cell.lg .heatmap-pe{font-size:40px}
+.heatmap-label{font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.heatmap-count{font-size:10px;color:var(--text-muted)}
+
+/* THERMOMETER (Tab 5) */
+.thermo-list{display:flex;flex-direction:column;gap:4px}
+.thermo-header{display:grid;grid-template-columns:55px 100px 1fr 65px 90px;gap:10px;padding:8px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.thermo-row{display:grid;grid-template-columns:55px 100px 1fr 65px 90px;gap:10px;align-items:center;padding:9px 14px;background:var(--bg-card);border-radius:7px;border:1px solid var(--border);transition:border-color .2s}
+.thermo-row:hover{border-color:var(--border-light)}
+.thermo-ticker{font-family:'Outfit',sans-serif;font-weight:600;font-size:12px}
+.thermo-name{font-size:10px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thermo-bar-wrap{position:relative;height:22px;background:linear-gradient(90deg,var(--green-dim) 0%,var(--yellow-dim) 50%,var(--red-dim) 100%);border-radius:4px}
+.thermo-marker{position:absolute;top:-1px;width:3px;height:24px;background:#fff;border-radius:2px;box-shadow:0 0 6px rgba(255,255,255,.4);transition:left .5s}
+.thermo-pct{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12px;text-align:right}
+.thermo-signal{text-align:center;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.sig-cheap{background:var(--green-bg);color:var(--green)}
+.sig-fair{background:var(--yellow-bg);color:var(--yellow)}
+.sig-exp{background:var(--red-bg);color:var(--red)}
+
+/* HISTORICAL (Tab 6) */
+.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:14px}
+.hist-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:border-color .2s}
+.hist-card:hover{border-color:var(--border-light)}
+.hist-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.hist-ticker{font-family:'Outfit',sans-serif;font-weight:700;font-size:17px}
+.hist-zone{font-size:10px;padding:3px 8px;border-radius:5px;font-weight:600}
+.hist-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.hist-stat{text-align:center;padding:10px;background:rgba(255,255,255,.015);border-radius:7px}
+.hist-stat-label{font-size:9px;color:var(--text-muted);margin-bottom:3px;font-family:'JetBrains Mono',monospace}
+.hist-stat-val{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px}
+.hist-cases-title{font-size:10px;color:var(--text-muted);margin-bottom:8px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.4px}
+.hist-case{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,.015);border-radius:5px;margin-bottom:3px;font-size:11px}
+.hist-case-date{font-family:'JetBrains Mono',monospace;color:var(--text-secondary)}
+.hist-case-pe{font-family:'JetBrains Mono',monospace;color:var(--text-muted);font-size:10px}
+.hist-case-result{font-family:'JetBrains Mono',monospace;font-weight:600}
+
+/* LEGEND */
+.legend{display:flex;gap:14px;margin-top:16px;padding:10px 14px;background:var(--bg-card);border-radius:7px;border:1px solid var(--border);flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-secondary)}
+.legend-dot{width:7px;height:7px;border-radius:2px}
+
+/* LOADING */
+.loading{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.loading-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .split-grid{grid-template-columns:1fr}
+  .heatmap-grid{grid-template-columns:repeat(2,1fr)}
+  .heatmap-cell.lg{grid-column:span 2;grid-row:span 1;min-height:120px}
+}
+@media(max-width:768px){
+  .header{padding:18px 16px 14px}
+  .tab-content{padding:16px}
+  .score-grid{grid-template-columns:1fr}
+  .hist-grid{grid-template-columns:1fr}
+  .thermo-header,.thermo-row{grid-template-columns:50px 1fr 55px 80px}
+  .thermo-header>:nth-child(2),.thermo-row>:nth-child(2){display:none}
+  .heatmap-pe{font-size:20px}
+  .heatmap-cell.lg .heatmap-pe{font-size:30px}
+  .discount-name{display:none}
+  .score-metrics{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:480px){
+  .heatmap-grid{grid-template-columns:1fr 1fr}
+  .heatmap-cell.md{grid-column:span 2}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-grid"></div>
+  <div class="header-content">
+    <div class="header-top">
+      <div class="logo-area">
+        <div class="logo-icon">VS</div>
+        <div class="title-block">
+          <h1>S&P 500 밸류에이션 스크리너</h1>
+          <div class="subtitle">Undervalued & Overvalued Stocks Finder</div>
+        </div>
+      </div>
+      <div class="update-badge">
+        <span class="update-dot"></span>
+        <span id="update-time">Loading...</span>
+      </div>
+    </div>
+    <div class="stats-bar" id="stats-bar"></div>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" onclick="switchTab(0)"><span class="tab-emoji">📊</span> 밸류에이션 랭킹</button>
+    <button class="tab-btn" onclick="switchTab(1)"><span class="tab-emoji">📉</span> 52주 고점 대비</button>
+    <button class="tab-btn" onclick="switchTab(2)"><span class="tab-emoji">🏆</span> 종합 스코어</button>
+    <button class="tab-btn" onclick="switchTab(3)"><span class="tab-emoji">🗺️</span> 섹터 히트맵</button>
+    <button class="tab-btn" onclick="switchTab(4)"><span class="tab-emoji">🌡️</span> 밸류에이션 온도계</button>
+    <button class="tab-btn" onclick="switchTab(5)"><span class="tab-emoji">⏱️</span> 역사적 성과</button>
+  </div>
+</div>
+
+<!-- Tab 1: Valuation Ranking -->
+<div class="tab-content active" id="tab-0">
+  <div class="filter-bar">
+    <select class="filter-select" id="f-sector" onchange="renderTab1()"><option value="">전체 섹터</option></select>
+    <select class="filter-select" id="f-sort" onchange="renderTab1()">
+      <option value="pe-asc">P/E 낮은순 ↑</option>
+      <option value="pe-desc">P/E 높은순 ↓</option>
+      <option value="pb-asc">P/B 낮은순</option>
+      <option value="peg-asc">PEG 낮은순</option>
+      <option value="score-desc">Value Score 높은순</option>
+      <option value="discount-asc">52주 할인율순</option>
+    </select>
+    <input type="text" class="search-input" id="f-search" placeholder="🔍 종목 검색" oninput="renderTab1()">
+  </div>
+  <div class="table-wrap"><table class="data-table" id="table-1"><thead></thead><tbody></tbody></table></div>
+  <div class="pagination" id="pagination-1"></div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>저평가</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>적정가</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>고평가</div>
+  </div>
+</div>
+
+<!-- Tab 2: 52-Week -->
+<div class="tab-content" id="tab-1"><div id="tab2-content"></div></div>
+
+<!-- Tab 3: Score -->
+<div class="tab-content" id="tab-2"><div id="tab3-content"></div></div>
+
+<!-- Tab 4: Sector Heatmap -->
+<div class="tab-content" id="tab-3">
+  <div class="filter-bar">
+    <select class="filter-select" id="heatmap-metric" onchange="renderTab4()">
+      <option value="pe">지표: 평균 P/E</option>
+      <option value="pb">지표: 평균 P/B</option>
+    </select>
+  </div>
+  <div id="tab4-content"></div>
+</div>
+
+<!-- Tab 5: Thermometer -->
+<div class="tab-content" id="tab-4">
+  <div class="filter-bar">
+    <select class="filter-select" id="thermo-filter" onchange="renderTab5()">
+      <option value="all">전체 종목</option>
+      <option value="cheap">극도로 싼 종목 (0~20%)</option>
+      <option value="expensive">극도로 비싼 종목 (80~100%)</option>
+    </select>
+    <select class="filter-select" id="thermo-sort" onchange="renderTab5()">
+      <option value="asc">퍼센타일 낮은순 (싼 순서)</option>
+      <option value="desc">퍼센타일 높은순 (비싼 순서)</option>
+    </select>
+  </div>
+  <div id="tab5-content"></div>
+</div>
+
+<!-- Tab 6: Historical -->
+<div class="tab-content" id="tab-5">
+  <div class="filter-bar">
+    <select class="filter-select" id="hist-filter" onchange="renderTab6()">
+      <option value="cheap">저평가 구간 진입 종목</option>
+      <option value="expensive">고평가 구간 진입 종목</option>
+      <option value="all">전체</option>
+    </select>
+  </div>
+  <div id="tab6-content"></div>
+</div>
+
+<script>
+let DATA = null;
+let tab1Page = 0;
+const PAGE_SIZE = 30;
+
+// ──────────────────────
+// DATA LOADING
+// ──────────────────────
+async function loadData() {
+  try {
+    const resp = await fetch('data/sp500_data.json');
+    DATA = await resp.json();
+    initDashboard();
+  } catch (e) {
+    document.querySelectorAll('.tab-content').forEach(el => {
+      el.innerHTML = '<div class="loading">⚠️ 데이터를 불러올 수 없습니다.<br><small>data/sp500_data.json 파일이 필요합니다.</small></div>';
+    });
+  }
+}
+
+function initDashboard() {
+  document.getElementById('update-time').textContent = DATA.lastUpdated + ' 업데이트';
+
+  const s = DATA.summary;
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-item"><span class="stat-label">S&P 500 평균 P/E</span><span class="stat-value">${s.avgPE}</span></div>
+    <div class="stat-item"><span class="stat-label">저평가</span><span class="stat-value" style="color:var(--green)">${s.undervalued}개</span></div>
+    <div class="stat-item"><span class="stat-label">고평가</span><span class="stat-value" style="color:var(--red)">${s.overvalued}개</span></div>
+    <div class="stat-item"><span class="stat-label">적정가</span><span class="stat-value" style="color:var(--yellow)">${s.fairValue}개</span></div>
+    <div class="stat-item"><span class="stat-label">총 종목</span><span class="stat-value">${s.totalStocks}</span></div>
+  `;
+
+  // Populate sector filter
+  const sectors = [...new Set(DATA.stocks.map(s => s.sector).filter(Boolean))].sort();
+  const sel = document.getElementById('f-sector');
+  sectors.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
+
+  renderTab1();
+  renderTab2();
+  renderTab3();
+  renderTab4();
+  renderTab5();
+  renderTab6();
+}
+
+// ──────────────────────
+// UTILITIES
+// ──────────────────────
+function valClass(v, thresholds) {
+  if (v == null) return '';
+  if (v <= thresholds[0]) return 'val-low';
+  if (v >= thresholds[1]) return 'val-high';
+  return 'val-mid';
+}
+
+function fmtNum(v, dec=1) {
+  if (v == null || v === undefined) return '-';
+  return Number(v).toFixed(dec);
+}
+
+function fmtMcap(v) {
+  if (!v) return '-';
+  if (v >= 1e12) return (v/1e12).toFixed(1) + 'T';
+  if (v >= 1e9) return (v/1e9).toFixed(0) + 'B';
+  if (v >= 1e6) return (v/1e6).toFixed(0) + 'M';
+  return v.toString();
+}
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-content').forEach((c,i) => c.classList.toggle('active', i===idx));
+}
+
+// ──────────────────────
+// TAB 1: VALUATION TABLE
+// ──────────────────────
+function getFilteredStocks() {
+  let stocks = [...DATA.stocks];
+  const sector = document.getElementById('f-sector').value;
+  const search = document.getElementById('f-search').value.toUpperCase();
+  const sort = document.getElementById('f-sort').value;
+
+  if (sector) stocks = stocks.filter(s => s.sector === sector);
+  if (search) stocks = stocks.filter(s => s.ticker.includes(search) || (s.name||'').toUpperCase().includes(search));
+
+  const [key, dir] = sort.split('-');
+  const sortMap = { pe:'pe', pb:'pb', peg:'peg', score:'valueScore', discount:'discount52w' };
+  const field = sortMap[key] || 'pe';
+  stocks.sort((a,b) => {
+    const av = a[field] ?? 9999, bv = b[field] ?? 9999;
+    return dir === 'asc' ? av - bv : bv - av;
+  });
+  return stocks;
+}
+
+function renderTab1() {
+  tab1Page = 0;
+  renderTab1Page();
+}
+
+function renderTab1Page() {
+  const stocks = getFilteredStocks();
+  const totalPages = Math.ceil(stocks.length / PAGE_SIZE);
+  const pageStocks = stocks.slice(tab1Page * PAGE_SIZE, (tab1Page + 1) * PAGE_SIZE);
+
+  const thead = document.querySelector('#table-1 thead');
+  thead.innerHTML = `<tr>
+    <th style="width:40px">#</th>
+    <th>종목</th>
+    <th>섹터</th>
+    <th class="sorted">P/E</th>
+    <th>Fwd P/E</th>
+    <th>P/B</th>
+    <th>P/S</th>
+    <th>PEG</th>
+    <th>Score</th>
+  </tr>`;
+
+  const tbody = document.querySelector('#table-1 tbody');
+  tbody.innerHTML = pageStocks.map((s, i) => {
+    const rank = tab1Page * PAGE_SIZE + i + 1;
+    const peC = valClass(s.pe, [15, 30]);
+    const pbC = valClass(s.pb, [2, 10]);
+    const pegC = valClass(s.peg, [1, 2]);
+    const psC = valClass(s.ps, [3, 10]);
+    const scC = s.valueScore >= 65 ? 'val-low' : s.valueScore <= 35 ? 'val-high' : 'val-mid';
+    return `<tr>
+      <td style="color:var(--text-muted)">${rank}</td>
+      <td><div class="ticker-cell"><div class="ticker-logo">${s.ticker.slice(0,2)}</div><div><div class="ticker-name">${s.ticker}</div><div class="ticker-company">${s.name||''}</div></div></div></td>
+      <td><span class="sector-badge">${(s.sector||'').replace('Consumer ','C.')}</span></td>
+      <td class="${peC}">${fmtNum(s.pe)}</td>
+      <td class="${valClass(s.forwardPE,[12,28])}">${fmtNum(s.forwardPE)}</td>
+      <td class="${pbC}">${fmtNum(s.pb)}</td>
+      <td class="${psC}">${fmtNum(s.ps)}</td>
+      <td class="${pegC}">${fmtNum(s.peg,2)}</td>
+      <td class="${scC}" style="font-weight:600">${s.valueScore}</td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pag = document.getElementById('pagination-1');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = `<span class="page-info">${stocks.length}개 중 ${tab1Page*PAGE_SIZE+1}-${Math.min((tab1Page+1)*PAGE_SIZE, stocks.length)}</span>`;
+  if (tab1Page > 0) html += `<button class="page-btn" onclick="tab1Page--;renderTab1Page()">◀</button>`;
+  for (let p = 0; p < totalPages && p < 10; p++) {
+    html += `<button class="page-btn ${p===tab1Page?'active':''}" onclick="tab1Page=${p};renderTab1Page()">${p+1}</button>`;
+  }
+  if (tab1Page < totalPages-1) html += `<button class="page-btn" onclick="tab1Page++;renderTab1Page()">▶</button>`;
+  pag.innerHTML = html;
+}
+
+// ──────────────────────
+// TAB 2: 52-WEEK DISCOUNT
+// ──────────────────────
+function renderTab2() {
+  const stocks = DATA.stocks.filter(s => s.discount52w != null);
+  const mostDown = [...stocks].sort((a,b) => a.discount52w - b.discount52w).slice(0, 15);
+  const nearHigh = [...stocks].sort((a,b) => b.discount52w - a.discount52w).slice(0, 10);
+
+  const makeRow = (s, i) => {
+    const isNeg = s.discount52w < -3;
+    const barW = Math.min(Math.abs(s.discount52w), 60);
+    return `<div class="discount-row">
+      <span class="discount-rank">${i+1}</span>
+      <span class="discount-ticker" style="color:var(--${isNeg?'red':'green'})">${s.ticker}</span>
+      <span class="discount-name">${s.name||''}</span>
+      <div class="discount-bar-wrap"><div class="discount-bar-fill ${isNeg?'neg':'pos'}" style="width:${barW}%"></div></div>
+      <span class="discount-pct" style="color:var(--${isNeg?'red':'green'})">${s.discount52w > 0 ? '+' : ''}${fmtNum(s.discount52w)}%</span>
+    </div>`;
+  };
+
+  document.getElementById('tab2-content').innerHTML = `
+    <div class="split-grid">
+      <div>
+        <div class="split-section-title">📉 52주 고점 대비 가장 많이 하락</div>
+        <div class="discount-list">${mostDown.map(makeRow).join('')}</div>
+      </div>
+      <div>
+        <div class="split-section-title">📈 52주 고점 근접 (강세 종목)</div>
+        <div class="discount-list">${nearHigh.map(makeRow).join('')}</div>
+      </div>
+    </div>`;
+}
+
+// ──────────────────────
+// TAB 3: VALUE SCORE
+// ──────────────────────
+function renderTab3() {
+  const sorted = [...DATA.stocks].filter(s => s.valueScore != null);
+  const top20 = sorted.sort((a,b) => b.valueScore - a.valueScore).slice(0, 20);
+  const bottom20 = sorted.sort((a,b) => a.valueScore - b.valueScore).slice(0, 20);
+
+  const makeCard = (s, i, isGreen) => {
+    const color = isGreen ? 'green' : 'red';
+    const barBg = isGreen ? 'background:linear-gradient(90deg,var(--green-dim),var(--green))' : 'background:linear-gradient(90deg,var(--red-dim),var(--red))';
+    return `<div class="score-card">
+      <div class="score-card-top">
+        <span class="score-card-rank">#${i+1}</span>
+        <div class="score-card-ticker-row">
+          <span class="score-card-ticker">${s.ticker}</span>
+          <span class="sector-badge">${(s.sector||'').replace('Consumer ','C.')}</span>
+        </div>
+        <span class="score-badge ${color}">${s.valueScore}</span>
+      </div>
+      <div class="score-bar-track"><div class="score-bar-fill" style="${barBg};width:${s.valueScore}%"></div></div>
+      <div class="score-metrics">
+        <div class="score-metric"><div class="score-metric-label">P/E</div><div class="score-metric-val ${valClass(s.pe,[15,30])}">${fmtNum(s.pe)}</div></div>
+        <div class="score-metric"><div class="score-metric-label">P/B</div><div class="score-metric-val ${valClass(s.pb,[2,10])}">${fmtNum(s.pb)}</div></div>
+        <div class="score-metric"><div class="score-metric-label">PEG</div><div class="score-metric-val ${valClass(s.peg,[1,2])}">${fmtNum(s.peg,2)}</div></div>
+        <div class="score-metric"><div class="score-metric-label">52W</div><div class="score-metric-val ${s.discount52w<-15?'val-low':s.discount52w>-5?'val-high':'val-mid'}">${fmtNum(s.discount52w)}%</div></div>
+      </div>
+    </div>`;
+  };
+
+  document.getElementById('tab3-content').innerHTML = `
+    <div class="score-section">
+      <div class="score-section-title">🟢 TOP 20 저평가 종목 (Value Score 높은순)</div>
+      <div class="score-grid">${top20.map((s,i) => makeCard(s,i,true)).join('')}</div>
+    </div>
+    <div class="score-section">
+      <div class="score-section-title">🔴 TOP 20 고평가 종목 (Value Score 낮은순)</div>
+      <div class="score-grid">${bottom20.map((s,i) => makeCard(s,i,false)).join('')}</div>
+    </div>`;
+}
+
+// ──────────────────────
+// TAB 4: SECTOR HEATMAP
+// ──────────────────────
+function renderTab4() {
+  const metric = document.getElementById('heatmap-metric').value;
+  const sectors = DATA.sectors;
+  const entries = Object.entries(sectors).sort((a,b) => b[1].count - a[1].count);
+
+  const getClass = (val) => {
+    if (metric === 'pe') return val < 16 ? 'cheap' : val > 28 ? 'expensive' : 'neutral';
+    return val < 3 ? 'cheap' : val > 8 ? 'expensive' : 'neutral';
+  };
+  const getColor = (val) => {
+    if (metric === 'pe') return val < 16 ? 'var(--green)' : val > 28 ? 'var(--red)' : 'var(--yellow)';
+    return val < 3 ? 'var(--green)' : val > 8 ? 'var(--red)' : 'var(--yellow)';
+  };
+
+  const label = metric === 'pe' ? 'AVG P/E' : 'AVG P/B';
+
+  let html = '<div class="heatmap-grid">';
+  entries.forEach(([name, data], i) => {
+    const val = metric === 'pe' ? data.avgPE : data.avgPB;
+    if (!val) return;
+    const size = i === 0 ? 'lg' : i < 3 ? 'md' : '';
+    html += `<div class="heatmap-cell ${getClass(val)} ${size}">
+      <div><div class="heatmap-sector">${name}</div><div class="heatmap-count">${data.count} 종목</div></div>
+      <div><div class="heatmap-label">${label}</div><div class="heatmap-pe" style="color:${getColor(val)}">${fmtNum(val)}</div></div>
+    </div>`;
+  });
+  html += '</div>';
+
+  html += `<div class="legend" style="margin-top:14px">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>저평가 섹터</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>적정가 섹터</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>고평가 섹터</div>
+  </div>`;
+
+  document.getElementById('tab4-content').innerHTML = html;
+}
+
+// ──────────────────────
+// TAB 5: THERMOMETER
+// ──────────────────────
+function renderTab5() {
+  const filter = document.getElementById('thermo-filter').value;
+  const sortDir = document.getElementById('thermo-sort').value;
+
+  let stocks = DATA.stocks.filter(s => s.pePercentile != null && s.pe != null && s.pe > 0 && s.pe < 500);
+
+  if (filter === 'cheap') stocks = stocks.filter(s => s.pePercentile <= 20);
+  else if (filter === 'expensive') stocks = stocks.filter(s => s.pePercentile >= 80);
+
+  stocks.sort((a,b) => sortDir === 'asc' ? a.pePercentile - b.pePercentile : b.pePercentile - a.pePercentile);
+  stocks = stocks.slice(0, 50);
+
+  const getSignal = (pct) => {
+    if (pct <= 15) return ['극도 저평가', 'sig-cheap'];
+    if (pct <= 30) return ['저평가', 'sig-cheap'];
+    if (pct <= 70) return ['적정가', 'sig-fair'];
+    if (pct <= 85) return ['고평가', 'sig-exp'];
+    return ['극도 고평가', 'sig-exp'];
+  };
+
+  const getTickerColor = (pct) => pct <= 30 ? 'var(--green)' : pct >= 70 ? 'var(--red)' : 'var(--text-primary)';
+
+  let html = `<div class="thermo-header"><span>티커</span><span>종목명</span><span>5년 P/E 범위 내 현재 위치</span><span>퍼센타일</span><span>시그널</span></div>`;
+  html += '<div class="thermo-list">';
+  stocks.forEach(s => {
+    const [sigText, sigClass] = getSignal(s.pePercentile);
+    const pctColor = s.pePercentile <= 30 ? 'val-low' : s.pePercentile >= 70 ? 'val-high' : 'val-mid';
+    html += `<div class="thermo-row">
+      <span class="thermo-ticker" style="color:${getTickerColor(s.pePercentile)}">${s.ticker}</span>
+      <span class="thermo-name">${s.name||''}</span>
+      <div><div class="thermo-bar-wrap"><div class="thermo-marker" style="left:${Math.max(1,Math.min(97,s.pePercentile))}%"></div></div></div>
+      <span class="thermo-pct ${pctColor}">${s.pePercentile}%</span>
+      <span class="thermo-signal ${sigClass}">${sigText}</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  document.getElementById('tab5-content').innerHTML = html;
+}
+
+// ──────────────────────
+// TAB 6: HISTORICAL
+// ──────────────────────
+function renderTab6() {
+  const filter = document.getElementById('hist-filter').value;
+
+  let stocks = DATA.stocks.filter(s => {
+    const hp = s.histPerformance;
+    if (!hp || !hp.similarCount || hp.similarCount < 2) return false;
+    if (filter === 'cheap') return s.pePercentile <= 25;
+    if (filter === 'expensive') return s.pePercentile >= 75;
+    return true;
+  });
+
+  // Sort by most extreme
+  if (filter === 'cheap') stocks.sort((a,b) => a.pePercentile - b.pePercentile);
+  else if (filter === 'expensive') stocks.sort((a,b) => b.pePercentile - a.pePercentile);
+  else stocks.sort((a,b) => Math.abs(b.pePercentile-50) - Math.abs(a.pePercentile-50));
+
+  stocks = stocks.slice(0, 20);
+
+  let html = '<div class="hist-grid">';
+  stocks.forEach(s => {
+    const hp = s.histPerformance;
+    const isCheap = s.pePercentile <= 30;
+    const zoneClass = isCheap ? 'sig-cheap' : 'sig-exp';
+    const zoneText = isCheap ? `P/E 하위 ${s.pePercentile}%` : `P/E 상위 ${100-s.pePercentile}%`;
+    const avgC = hp.avg6mReturn >= 0 ? 'val-low' : 'val-high';
+    const winC = hp.winRate >= 60 ? 'val-low' : hp.winRate <= 40 ? 'val-high' : 'val-mid';
+
+    let casesHtml = '';
+    if (hp.cases) {
+      hp.cases.forEach(c => {
+        const retC = c.return6m >= 0 ? 'val-low' : 'val-high';
+        casesHtml += `<div class="hist-case">
+          <span class="hist-case-date">${c.date}</span>
+          <span class="hist-case-pe">P/E ${fmtNum(c.pe)}</span>
+          <span class="hist-case-result ${retC}">${c.return6m>0?'+':''}${fmtNum(c.return6m)}%</span>
+        </div>`;
+      });
+    }
+
+    html += `<div class="hist-card">
+      <div class="hist-card-header">
+        <div><div class="hist-ticker">${s.ticker}</div><span class="sector-badge">${(s.sector||'').replace('Consumer ','C.')}</span></div>
+        <span class="hist-zone ${zoneClass}">현재 ${zoneText}</span>
+      </div>
+      <div class="hist-stats">
+        <div class="hist-stat"><div class="hist-stat-label">유사 구간 횟수</div><div class="hist-stat-val" style="color:var(--blue)">${hp.similarCount}회</div></div>
+        <div class="hist-stat"><div class="hist-stat-label">6개월 후 평균</div><div class="hist-stat-val ${avgC}">${hp.avg6mReturn>0?'+':''}${fmtNum(hp.avg6mReturn)}%</div></div>
+        <div class="hist-stat"><div class="hist-stat-label">승률</div><div class="hist-stat-val ${winC}">${hp.winRate}%</div></div>
+      </div>
+      <div class="hist-cases-title">과거 사례</div>
+      ${casesHtml}
+    </div>`;
+  });
+  html += '</div>';
+
+  html += `<div class="legend" style="margin-top:14px">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>"저평가 구간" = 5년간 P/E 하위 25%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>"고평가 구간" = 5년간 P/E 상위 25%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>6개월 후 수익률 기준</div>
+  </div>`;
+
+  document.getElementById('tab6-content').innerHTML = html;
+}
+
+// INIT
+loadData();
+</script>
+</body>
+</html>
