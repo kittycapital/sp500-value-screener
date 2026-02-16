@@ -14,19 +14,17 @@
 html{scrollbar-width:none}html::-webkit-scrollbar{display:none}
 body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
 
-/* Nav */
 .top-nav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);border-bottom:1px solid #1a1a1a;padding:0 16px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:56px}
 .nav-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:#e4e4e7;white-space:nowrap;text-align:center}
 .nav-upd{font-size:11px;color:#52525b;display:flex;align-items:center;gap:5px;justify-self:end}
 .nav-upd .dot{width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
-.stats-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:12px;padding:8px 0}
+.stats-row{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
 .stat-item{display:flex;align-items:center;gap:5px}
 .stat-label{color:#71717a}.stat-value{font-family:'JetBrains Mono',monospace;font-weight:600}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 .container{max-width:1200px;margin:0 auto;padding:0 16px 60px}
 
-/* Share */
 .share-bar{display:flex;gap:6px;justify-content:center;margin:12px 0 4px;flex-wrap:wrap}
 .share-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;border:1px solid #222;background:#0a0a0a;color:#a1a1aa;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s}
 .share-btn:hover{border-color:#444;color:#e4e4e7}
@@ -39,23 +37,20 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .toast{position:fixed;bottom:20px;right:20px;background:#22c55e;color:#000;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
 
-/* Tabs */
 .tab-nav{display:flex;gap:4px;justify-content:center;margin:12px 0;flex-wrap:wrap;padding:0 8px}
-.tab-btn{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 14px;font-size:12px;color:#a1a1aa;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.tab-btn{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 14px;font-size:12px;color:#a1a1aa;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;white-space:nowrap}
 .tab-btn:hover{border-color:#333;color:#e4e4e7}
 .tab-btn.active{background:rgba(59,130,246,.1);border-color:#3b82f6;color:#3b82f6;font-weight:600}
 .tab-content{display:none}.tab-content.active{display:block;animation:fadeIn .3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* Filter */
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
 .filter-select,.search-input{background:#0a0a0a;border:1px solid #1a1a1a;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:8px 14px;border-radius:7px;cursor:pointer;transition:border-color .2s;outline:none}
 .filter-select option{background:#0a0a0a;color:#e4e4e7}
-.search-input{font-family:'JetBrains Mono',monospace;width:180px}
+.search-input{font-family:'JetBrains Mono',monospace;width:220px}
 .search-input::placeholder{color:#71717a}
 .search-input:focus,.filter-select:focus{border-color:#3b82f6}
 
-/* Tooltip */
 .th-wrap{display:flex;align-items:center;gap:4px}
 .tip-icon{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.08);color:#71717a;font-size:9px;display:inline-flex;align-items:center;justify-content:center;cursor:help;position:relative;flex-shrink:0}
 .tip-icon:hover{background:rgba(59,130,246,.2);color:#3b82f6}
@@ -63,11 +58,13 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#111}
 .tip-icon:hover .tip-box{display:block}
 
-/* Table - BIGGER & BRIGHTER */
 .table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1a1a1a}
 .data-table{width:100%;border-collapse:collapse;font-size:14px;min-width:700px}
-.data-table thead th{background:#0a0a0a;color:#a1a1aa;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;text-align:left;border-bottom:1px solid #1a1a1a;position:sticky;top:0;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.data-table thead th{background:#0a0a0a;color:#a1a1aa;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;text-align:left;border-bottom:1px solid #1a1a1a;position:sticky;top:0;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace;user-select:none;transition:color .2s}
 .data-table thead th:hover{color:#e4e4e7}
+.data-table thead th.sort-active{color:#3b82f6}
+.sort-icon{font-size:9px;margin-left:3px;color:#52525b;transition:color .2s}
+.data-table thead th.sort-active .sort-icon{color:#3b82f6}
 .data-table tbody tr{transition:background .12s}
 .data-table tbody tr:hover{background:#111}
 .data-table tbody td{padding:12px 14px;border-bottom:1px solid rgba(26,26,26,.6);font-family:'JetBrains Mono',monospace;font-size:13px;color:#e4e4e7}
@@ -78,16 +75,14 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .sector-badge{background:#111;border:1px solid #1a1a1a;color:#a1a1aa;font-size:10px;padding:3px 8px;border-radius:4px;white-space:nowrap}
 .val-low{color:#22c55e}.val-mid{color:#eab308}.val-high{color:#ef4444}
 
-/* Pagination */
 .pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px}
 .page-btn{background:#0a0a0a;border:1px solid #1a1a1a;color:#a1a1aa;font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .2s}
 .page-btn:hover{border-color:#333;color:#e4e4e7}
 .page-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.06)}
 .page-info{font-size:11px;color:#71717a;font-family:'JetBrains Mono',monospace}
 
-/* Split grid - Tab2 */
 .split-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.split-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.split-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:12px}
 .discount-list{display:flex;flex-direction:column;gap:5px}
 .discount-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0a0a0a;border-radius:8px;border:1px solid #1a1a1a;transition:border-color .2s}
 .discount-row:hover{border-color:#333}
@@ -99,10 +94,9 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .discount-bar-fill.pos{background:linear-gradient(90deg,rgba(34,197,94,.3),#22c55e)}
 .discount-pct{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;width:60px;text-align:right}
 
-/* Score Cards - Tab3 */
 .chart-panel{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;margin-bottom:20px;overflow:hidden}
 .chart-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #1a1a1a;flex-wrap:wrap;gap:10px}
-.chart-panel-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px}
+.chart-panel-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px}
 .chart-panel-subtitle{font-size:11px;color:#71717a;font-family:'JetBrains Mono',monospace}
 .chart-panel-empty{padding:50px 20px;text-align:center;color:#71717a;font-size:13px}
 .chart-panel-body{position:relative}
@@ -111,7 +105,7 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .period-btn:hover{border-color:#333;color:#e4e4e7}
 .period-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.06)}
 .score-section{margin-bottom:28px}
-.score-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.score-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:14px}
 .score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
 .score-card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:14px;transition:all .2s;cursor:pointer}
 .score-card:hover{border-color:#333}
@@ -130,7 +124,6 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .score-metric-label{font-size:9px;color:#71717a;margin-bottom:2px;font-family:'JetBrains Mono',monospace}
 .score-metric-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
 
-/* Heatmap - Tab4 */
 .heatmap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .heatmap-cell{border-radius:10px;padding:16px;min-height:100px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s;cursor:pointer;border:1px solid transparent}
 .heatmap-cell:hover{transform:scale(1.02);border-color:rgba(255,255,255,.08)}
@@ -148,7 +141,6 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .heatmap-label{font-size:10px;color:#71717a;font-family:'JetBrains Mono',monospace}
 .heatmap-count{font-size:10px;color:#71717a}
 
-/* Thermo - Tab5 */
 .thermo-list{display:flex;flex-direction:column;gap:4px}
 .thermo-header{display:grid;grid-template-columns:55px 100px 1fr 65px 90px;gap:10px;padding:8px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#71717a;font-family:'JetBrains Mono',monospace}
 .thermo-row{display:grid;grid-template-columns:55px 100px 1fr 65px 90px;gap:10px;align-items:center;padding:10px 14px;background:#0a0a0a;border-radius:7px;border:1px solid #1a1a1a;transition:border-color .2s}
@@ -163,7 +155,6 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .sig-fair{background:rgba(234,179,8,.1);color:#eab308}
 .sig-exp{background:rgba(239,68,68,.1);color:#ef4444}
 
-/* History - Tab6 */
 .chart-dual{display:flex;flex-direction:column}
 .chart-dual-left{border-bottom:1px solid #1a1a1a;height:320px}
 .chart-dual-left iframe{height:100%!important}
@@ -184,7 +175,7 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .hist-case-date{font-family:'JetBrains Mono',monospace;color:#a1a1aa}
 .hist-case-pe{font-family:'JetBrains Mono',monospace;color:#71717a;font-size:10px}
 .hist-case-result{font-family:'JetBrains Mono',monospace;font-weight:700}
-.info-box{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:16px 18px;margin-bottom:18px;font-size:13px;line-height:1.7;color:#a1a1aa}
+.info-box{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:16px 18px;margin-bottom:18px;font-size:13px;line-height:1.7;color:#a1a1aa;text-align:center}
 .info-box strong{color:#e4e4e7;font-weight:600}
 .info-box .info-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;color:#e4e4e7;margin-bottom:6px}
 .legend{display:flex;gap:14px;margin-top:16px;padding:10px 14px;background:#0a0a0a;border-radius:7px;border:1px solid #1a1a1a;flex-wrap:wrap;justify-content:center}
@@ -206,7 +197,6 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 
 <div class="container">
 
-<!-- Share -->
 <div class="share-bar">
   <button class="share-btn twitter" onclick="shareTwitter()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>트위터</button>
   <button class="share-btn kakao" onclick="shareKakao()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-5.52 0-10 3.36-10 7.5 0 2.66 1.74 5 4.36 6.33-.14.53-.9 3.4-.93 3.61 0 0-.02.17.09.23.11.07.24.03.24.03.32-.04 3.7-2.42 4.28-2.83.62.09 1.27.13 1.96.13 5.52 0 10-3.36 10-7.5S17.52 3 12 3z"/></svg>카카오톡</button>
@@ -215,39 +205,33 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
   <button class="share-btn copy" onclick="copyLink(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>링크복사</button>
 </div>
 
-<!-- Tabs -->
 <div class="tab-nav">
-  <button class="tab-btn" onclick="switchTab(0)">📊 밸류에이션 랭킹</button>
-  <button class="tab-btn" onclick="switchTab(1)">📉 52주 고점 대비</button>
-  <button class="tab-btn active" onclick="switchTab(2)">🏆 종합 스코어</button>
-  <button class="tab-btn" onclick="switchTab(3)">🗺️ 섹터 히트맵</button>
-  <button class="tab-btn" onclick="switchTab(4)">🌡️ 밸류에이션 온도계</button>
-  <button class="tab-btn" onclick="switchTab(5)">⏱️ 역사적 성과</button>
+  <button class="tab-btn" onclick="switchTab(0)">밸류에이션 랭킹</button>
+  <button class="tab-btn" onclick="switchTab(1)">52주 고점 대비</button>
+  <button class="tab-btn active" onclick="switchTab(2)">종합 스코어</button>
+  <button class="tab-btn" onclick="switchTab(3)">섹터 히트맵</button>
+  <button class="tab-btn" onclick="switchTab(4)">밸류에이션 온도계</button>
+  <button class="tab-btn" onclick="switchTab(5)">역사적 성과</button>
 </div>
 
-<!-- TAB 0: 밸류에이션 랭킹 -->
+<!-- TAB 0 -->
 <div class="tab-content" id="tab-0">
 <div class="filter-bar">
 <select class="filter-select" id="f-sector" onchange="renderTab1()"><option value="">전체 섹터</option></select>
-<select class="filter-select" id="f-sort" onchange="renderTab1()">
-<option value="pe-asc">P/E 낮은순 ↑</option><option value="pe-desc">P/E 높은순 ↓</option>
-<option value="pb-asc">P/B 낮은순</option><option value="peg-asc">PEG 낮은순</option>
-<option value="score-desc">Value Score 높은순</option><option value="discount-asc">52주 할인율순</option>
-</select>
-<input type="text" class="search-input" id="f-search" placeholder="🔍 종목 검색" oninput="renderTab1()">
+<input type="text" class="search-input" id="f-search" placeholder="종목 검색 (티커 / 회사명)" oninput="renderTab1()">
 </div>
 <div class="table-wrap"><table class="data-table" id="table-1"><thead></thead><tbody></tbody></table></div>
 <div class="pagination" id="pagination-1"></div>
 <div class="legend"><div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>저평가</div><div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>적정가</div><div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>고평가</div></div>
 </div>
 
-<!-- TAB 1: 52주 고점 대비 -->
+<!-- TAB 1 -->
 <div class="tab-content" id="tab-1"><div id="tab2-content"></div></div>
 
-<!-- TAB 2: 종합 스코어 (DEFAULT) -->
+<!-- TAB 2 (DEFAULT) -->
 <div class="tab-content active" id="tab-2">
 <div class="chart-panel chart-sticky" id="score-chart-panel">
-<div class="chart-panel-header"><div><div class="chart-panel-title" id="score-chart-title">📈 차트 로딩중...</div><div class="chart-panel-subtitle" id="score-chart-sub"></div></div>
+<div class="chart-panel-header"><div><div class="chart-panel-title" id="score-chart-title">차트 로딩중...</div><div class="chart-panel-subtitle" id="score-chart-sub"></div></div>
 <div class="chart-period-btns" id="score-period-btns" style="display:none">
 <button class="period-btn" onclick="setScoreP('1M')">1M</button><button class="period-btn" onclick="setScoreP('3M')">3M</button>
 <button class="period-btn active" onclick="setScoreP('6M')">6M</button><button class="period-btn" onclick="setScoreP('1Y')">1Y</button><button class="period-btn" onclick="setScoreP('5Y')">5Y</button>
@@ -257,10 +241,10 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 <div id="tab3-content"></div>
 </div>
 
-<!-- TAB 3: 섹터 히트맵 -->
+<!-- TAB 3 -->
 <div class="tab-content" id="tab-3"><div class="filter-bar"><select class="filter-select" id="heatmap-metric" onchange="renderTab4()"><option value="pe">지표: 평균 P/E</option><option value="pb">지표: 평균 P/B</option></select></div><div id="tab4-content"></div></div>
 
-<!-- TAB 4: 밸류에이션 온도계 -->
+<!-- TAB 4 -->
 <div class="tab-content" id="tab-4">
 <div class="filter-bar">
 <select class="filter-select" id="thermo-filter" onchange="renderTab5()"><option value="all">전체 종목</option><option value="cheap">극도로 싼 종목 (0~20%)</option><option value="expensive">극도로 비싼 종목 (80~100%)</option></select>
@@ -268,30 +252,30 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 </div><div id="tab5-content"></div>
 </div>
 
-<!-- TAB 5: 역사적 성과 -->
+<!-- TAB 5 -->
 <div class="tab-content" id="tab-5">
-<div class="info-box"><div class="info-title">📊 역사적 밸류에이션 성과 분석</div>
+<div class="info-box"><div class="info-title">역사적 밸류에이션 성과 분석</div>
 각 종목이 <strong>과거에 현재와 비슷한 P/E 수준</strong>이었을 때, <strong>6개월 후 주가가 어떻게 변했는지</strong>를 분석합니다.
 승률이 높고 평균 수익률이 양수인 종목은 과거 패턴상 반등 가능성이 있습니다.
-<span style="color:#eab308">⚠️ 과거 성과가 미래를 보장하지는 않습니다. 투자 참고용으로만 활용하세요.</span></div>
+<br><span style="color:#eab308">과거 성과가 미래를 보장하지는 않습니다. 투자 참고용으로만 활용하세요.</span></div>
 <div class="chart-panel chart-sticky" id="hist-chart-panel">
-<div class="chart-panel-header"><div><div class="chart-panel-title" id="hist-chart-title">📈 아래 종목을 클릭하세요</div><div class="chart-panel-subtitle" id="hist-chart-sub"></div></div></div>
+<div class="chart-panel-header"><div><div class="chart-panel-title" id="hist-chart-title">아래 종목을 클릭하세요</div><div class="chart-panel-subtitle" id="hist-chart-sub"></div></div></div>
 <div class="chart-panel-body" id="hist-chart-body">
 <div class="chart-dual">
-<div class="chart-dual-left" id="hist-tv-container"><div class="chart-panel-empty">👆 종목을 선택하면 TradingView 가격 차트 표시</div></div>
+<div class="chart-dual-left" id="hist-tv-container"><div class="chart-panel-empty">종목을 선택하면 TradingView 가격 차트 표시</div></div>
 <div class="chart-dual-right"><div style="font-size:11px;font-family:'JetBrains Mono',monospace;margin-bottom:4px"><span style="color:#e4e4e7">5년 P/E 히스토리</span></div>
-<div style="font-size:10px;color:#a1a1aa;line-height:1.6;margin-bottom:6px">파란 라인이 <span style="color:#22c55e">초록 밴드</span> 안에 있으면 역사적 저평가, <span style="color:#ef4444">빨간 밴드</span> 안에 있으면 고평가.<br><span style="color:#eab308">◆</span> 마커 = 현재와 비슷한 P/E였던 과거 시점</div><canvas id="pe-history-chart"></canvas></div>
+<div style="font-size:10px;color:#a1a1aa;line-height:1.6;margin-bottom:6px">파란 라인이 <span style="color:#22c55e">초록 밴드</span> 안에 있으면 역사적 저평가, <span style="color:#ef4444">빨간 밴드</span> 안에 있으면 고평가.<br><span style="color:#eab308">&#9670;</span> 마커 = 현재와 비슷한 P/E였던 과거 시점</div><canvas id="pe-history-chart"></canvas></div>
 </div></div></div>
 <div class="filter-bar"><select class="filter-select" id="hist-filter" onchange="renderTab6()"><option value="cheap">저평가 구간 진입 종목</option><option value="expensive">고평가 구간 진입 종목</option><option value="all">전체</option></select></div>
 <div id="tab6-content"></div>
 </div>
 
-</div><!-- container -->
-
+</div>
 <div class="toast" id="toast"></div>
 <script>
 var DATA=null,tab1Page=0,peChart=null,scoreP='6M',selScore=null,selHist=null;
 var PS=30;
+var t1Sort='pe',t1Dir='asc';
 var SKR={'Technology':'기술','Financials':'금융','Healthcare':'의료','Consumer Discretionary':'임의소비재','Consumer Staples':'필수소비재','Industrials':'산업재','Communication Services':'통신서비스','Energy':'에너지','Utilities':'유틸리티','Real Estate':'부동산','Materials':'소재'};
 var TIPS={pe:'주가수익비율. 현재 주가÷주당순이익(EPS). 낮을수록 이익 대비 저평가.',fwdpe:'향후 12개월 예상 실적 기준 P/E. 현재보다 낮으면 실적 개선 기대.',pb:'주가순자산비율. 주가÷주당순자산. 1 이하면 자산가치 미만 거래.',ps:'주가매출비율. 적자 기업도 비교 가능한 지표.',peg:'P/E÷이익성장률. 1 이하면 성장 대비 저평가, 2 이상은 고평가.',score:'여러 밸류에이션 지표 종합 점수. 100=극도 저평가, 0=극도 고평가.'};
 function tip(k){return '<span class="tip-icon">?<span class="tip-box">'+TIPS[k]+'</span></span>';}
@@ -300,7 +284,7 @@ function fn(v,d){if(v==null)return'-';return Number(v).toFixed(d===undefined?1:d
 function ss(s){return(s||'').replace('Consumer Discretionary','C.Discret.').replace('Consumer Staples','C.Staples').replace('Communication Services','Comm.Svc.');}
 function switchTab(i){document.querySelectorAll('.tab-btn').forEach(function(b,j){b.classList.toggle('active',j===i)});document.querySelectorAll('.tab-content').forEach(function(c,j){c.classList.toggle('active',j===i)});}
 
-async function loadData(){try{var r=await fetch('data/sp500_data.json');DATA=await r.json();init();}catch(e){document.querySelectorAll('.tab-content').forEach(function(el){el.innerHTML='<div style="text-align:center;padding:60px;color:#71717a">⚠️ data/sp500_data.json을 불러올 수 없습니다.</div>';});}}
+async function loadData(){try{var r=await fetch('data/sp500_data.json');DATA=await r.json();init();}catch(e){document.querySelectorAll('.tab-content').forEach(function(el){el.innerHTML='<div style="text-align:center;padding:60px;color:#71717a">data/sp500_data.json을 불러올 수 없습니다.</div>';});}}
 
 function init(){
 document.getElementById('update-time').textContent=DATA.lastUpdated+' 업데이트';
@@ -310,7 +294,6 @@ var secs=[...new Set(DATA.stocks.map(function(s){return s.sector}).filter(Boolea
 var sel=document.getElementById('f-sector');
 secs.forEach(function(s){var o=document.createElement('option');o.value=s;o.textContent=s+' '+(SKR[s]||'');sel.appendChild(o);});
 renderTab1();renderTab2();renderTab3();renderTab4();renderTab5();renderTab6();
-// Auto-select first top20 undervalued stock
 setTimeout(function(){
   var sorted=[...DATA.stocks].filter(function(s){return s.valueScore!=null}).sort(function(a,b){return b.valueScore-a.valueScore});
   if(sorted.length>0)selScoreStock(sorted[0].ticker);
@@ -327,47 +310,94 @@ sc.textContent=JSON.stringify({autosize:true,symbol:ticker,interval:"D",timezone
 d.appendChild(sc);
 }
 
-// TAB 1
-function getFS(){var st=[...DATA.stocks];var sec=document.getElementById('f-sector').value,sr=document.getElementById('f-search').value.toUpperCase(),so=document.getElementById('f-sort').value;
-if(sec)st=st.filter(function(s){return s.sector===sec});if(sr)st=st.filter(function(s){return s.ticker.includes(sr)||(s.name||'').toUpperCase().includes(sr)});
-var parts=so.split('-');var k=parts[0],dd=parts[1];var m={pe:'pe',pb:'pb',peg:'peg',score:'valueScore',discount:'discount52w'};var f=m[k]||'pe';
-st.sort(function(a,b){var av=a[f]!=null?a[f]:9999,bv=b[f]!=null?b[f]:9999;return dd==='asc'?av-bv:bv-av;});return st;}
+/* TAB 1 - Header click sort */
+var T1_COLS=[
+  {key:'#',field:null,label:'#',sortable:false},
+  {key:'ticker',field:'ticker',label:'종목',sortable:false},
+  {key:'sector',field:'sector',label:'섹터',sortable:false},
+  {key:'pe',field:'pe',label:'P/E',tip:'pe',sortable:true},
+  {key:'fwdpe',field:'forwardPE',label:'FWD P/E',tip:'fwdpe',sortable:true},
+  {key:'pb',field:'pb',label:'P/B',tip:'pb',sortable:true},
+  {key:'ps',field:'ps',label:'P/S',tip:'ps',sortable:true},
+  {key:'peg',field:'peg',label:'PEG',tip:'peg',sortable:true},
+  {key:'score',field:'valueScore',label:'SCORE',tip:'score',sortable:true}
+];
+
+function sortIcon(key){
+  if(!T1_COLS.find(function(c){return c.key===key&&c.sortable}))return '';
+  if(t1Sort===key) return '<span class="sort-icon">'+(t1Dir==='asc'?' ▲':' ▼')+'</span>';
+  return '<span class="sort-icon"> ↕</span>';
+}
+
+function t1HeaderClick(key){
+  var col=T1_COLS.find(function(c){return c.key===key});
+  if(!col||!col.sortable)return;
+  if(t1Sort===key){t1Dir=t1Dir==='asc'?'desc':'asc';}
+  else{t1Sort=key;t1Dir=key==='score'?'desc':'asc';}
+  tab1Page=0;renderT1P();
+}
+
+function getFS(){
+  var st=[...DATA.stocks];
+  var sec=document.getElementById('f-sector').value;
+  var sr=document.getElementById('f-search').value.toUpperCase();
+  if(sec)st=st.filter(function(s){return s.sector===sec});
+  if(sr)st=st.filter(function(s){return s.ticker.includes(sr)||(s.name||'').toUpperCase().includes(sr)});
+  var col=T1_COLS.find(function(c){return c.key===t1Sort});
+  var field=col?col.field:'pe';
+  var dir=t1Dir;
+  st.sort(function(a,b){
+    var av=a[field]!=null?a[field]:9999;
+    var bv=b[field]!=null?b[field]:9999;
+    return dir==='asc'?av-bv:bv-av;
+  });
+  return st;
+}
 function renderTab1(){tab1Page=0;renderT1P();}
 function renderT1P(){
 var st=getFS(),tp=Math.ceil(st.length/PS),ps=st.slice(tab1Page*PS,(tab1Page+1)*PS);
-document.querySelector('#table-1 thead').innerHTML='<tr><th style="width:40px">#</th><th>종목</th><th>섹터</th><th><div class="th-wrap">P/E '+tip('pe')+'</div></th><th><div class="th-wrap">FWD P/E '+tip('fwdpe')+'</div></th><th><div class="th-wrap">P/B '+tip('pb')+'</div></th><th><div class="th-wrap">P/S '+tip('ps')+'</div></th><th><div class="th-wrap">PEG '+tip('peg')+'</div></th><th><div class="th-wrap">SCORE '+tip('score')+'</div></th></tr>';
+var thead='<tr>';
+T1_COLS.forEach(function(c){
+  var cls=t1Sort===c.key&&c.sortable?' sort-active':'';
+  var tipH=c.tip?tip(c.tip):'';
+  var click=c.sortable?' onclick="t1HeaderClick(\''+c.key+'\')"':'';
+  var si=c.sortable?sortIcon(c.key):'';
+  thead+='<th class="'+cls+'"'+click+'><div class="th-wrap">'+c.label+si+tipH+'</div></th>';
+});
+thead+='</tr>';
+document.querySelector('#table-1 thead').innerHTML=thead;
 document.querySelector('#table-1 tbody').innerHTML=ps.map(function(s,i){var r=tab1Page*PS+i+1;var sc=s.valueScore>=65?'val-low':s.valueScore<=35?'val-high':'val-mid';
 return '<tr><td style="color:#71717a">'+r+'</td><td><div class="ticker-cell"><div class="ticker-logo">'+s.ticker.slice(0,2)+'</div><div><div class="ticker-name">'+s.ticker+'</div><div class="ticker-company">'+(s.name||'')+'</div></div></div></td><td><span class="sector-badge">'+ss(s.sector)+'</span></td><td class="'+vc(s.pe,[15,30])+'">'+fn(s.pe)+'</td><td class="'+vc(s.forwardPE,[12,28])+'">'+fn(s.forwardPE)+'</td><td class="'+vc(s.pb,[2,10])+'">'+fn(s.pb)+'</td><td class="'+vc(s.ps,[3,10])+'">'+fn(s.ps)+'</td><td class="'+vc(s.peg,[1,2])+'">'+fn(s.peg,2)+'</td><td class="'+sc+'" style="font-weight:700;font-size:14px">'+s.valueScore+'</td></tr>';}).join('');
 var pg=document.getElementById('pagination-1');if(tp<=1){pg.innerHTML='';return;}
 var h='<span class="page-info">'+st.length+'개 중 '+(tab1Page*PS+1)+'-'+Math.min((tab1Page+1)*PS,st.length)+'</span>';
-if(tab1Page>0)h+='<button class="page-btn" onclick="tab1Page--;renderT1P()">◀</button>';
+if(tab1Page>0)h+='<button class="page-btn" onclick="tab1Page--;renderT1P()">&#9664;</button>';
 var sp=Math.max(0,tab1Page-4),ep=Math.min(tp,sp+9);
 for(var p=sp;p<ep;p++)h+='<button class="page-btn '+(p===tab1Page?'active':'')+'" onclick="tab1Page='+p+';renderT1P()">'+(p+1)+'</button>';
-if(tab1Page<tp-1)h+='<button class="page-btn" onclick="tab1Page++;renderT1P()">▶</button>';pg.innerHTML=h;}
+if(tab1Page<tp-1)h+='<button class="page-btn" onclick="tab1Page++;renderT1P()">&#9654;</button>';pg.innerHTML=h;}
 
-// TAB 2
+/* TAB 2 */
 function renderTab2(){var st=DATA.stocks.filter(function(s){return s.discount52w!=null});var md=[...st].sort(function(a,b){return a.discount52w-b.discount52w}).slice(0,15);var nh=[...st].sort(function(a,b){return b.discount52w-a.discount52w}).slice(0,10);
 var mr=function(s,i){var n=s.discount52w<-3;var w=Math.min(Math.abs(s.discount52w),60);return '<div class="discount-row"><span class="discount-rank">'+(i+1)+'</span><span class="discount-ticker" style="color:'+(n?'#ef4444':'#22c55e')+'">'+s.ticker+'</span><div class="discount-bar-wrap"><div class="discount-bar-fill '+(n?'neg':'pos')+'" style="width:'+w+'%"></div></div><span class="discount-pct" style="color:'+(n?'#ef4444':'#22c55e')+'">'+(s.discount52w>0?'+':'')+fn(s.discount52w)+'%</span></div>';};
-document.getElementById('tab2-content').innerHTML='<div class="split-grid"><div><div class="split-section-title">📉 52주 고점 대비 가장 많이 하락</div><div class="discount-list">'+md.map(mr).join('')+'</div></div><div><div class="split-section-title">📈 52주 고점 근접 (강세)</div><div class="discount-list">'+nh.map(mr).join('')+'</div></div></div>';}
+document.getElementById('tab2-content').innerHTML='<div class="split-grid"><div><div class="split-section-title">52주 고점 대비 가장 많이 하락</div><div class="discount-list">'+md.map(mr).join('')+'</div></div><div><div class="split-section-title">52주 고점 근접 (강세)</div><div class="discount-list">'+nh.map(mr).join('')+'</div></div></div>';}
 
-// TAB 3
+/* TAB 3 */
 function selScoreStock(t){selScore=t;var s=DATA.stocks.find(function(x){return x.ticker===t});if(!s)return;
-document.getElementById('score-chart-title').innerHTML='📈 '+s.ticker+' — '+s.name;
+document.getElementById('score-chart-title').textContent=s.ticker+' — '+s.name;
 document.getElementById('score-chart-sub').textContent=s.sector+' · P/E '+fn(s.pe)+' · Score '+s.valueScore;
 document.getElementById('score-period-btns').style.display='flex';
 var rm={'1M':'1M','3M':'3M','6M':'6M','1Y':'12M','5Y':'60M'};
 embedTV(s.ticker,'score-chart-body',400,rm[scoreP]||'6M');
 document.querySelectorAll('#tab3-content .score-card').forEach(function(c){c.classList.remove('selected')});
-var clickedSC=document.querySelector('#tab3-content .score-card[data-ticker="'+t+'"]');if(clickedSC)clickedSC.classList.add('selected');
+var sc=document.querySelector('#tab3-content .score-card[data-ticker="'+t+'"]');if(sc)sc.classList.add('selected');
 if(window.innerWidth<769)document.getElementById('score-chart-panel').scrollIntoView({behavior:'smooth',block:'start'});}
 function setScoreP(p){scoreP=p;document.querySelectorAll('#score-period-btns .period-btn').forEach(function(b){b.classList.toggle('active',b.textContent===p)});if(selScore)selScoreStock(selScore);}
 
 function renderTab3(){var so=[...DATA.stocks].filter(function(s){return s.valueScore!=null});var t20=[...so].sort(function(a,b){return b.valueScore-a.valueScore}).slice(0,20);var b20=[...so].sort(function(a,b){return a.valueScore-b.valueScore}).slice(0,20);
 var mc=function(s,i,g){var co=g?'green':'red';var bg=g?'background:linear-gradient(90deg,rgba(34,197,94,.15),#22c55e)':'background:linear-gradient(90deg,rgba(239,68,68,.15),#ef4444)';
 return '<div class="score-card" data-ticker="'+s.ticker+'" onclick="selScoreStock(\''+s.ticker+'\')"><div class="score-card-top"><span class="score-card-rank">#'+(i+1)+'</span><div class="score-card-ticker-row"><span class="score-card-ticker">'+s.ticker+'</span><span class="sector-badge">'+ss(s.sector)+'</span></div><span class="score-badge '+co+'">'+s.valueScore+'</span></div><div class="score-bar-track"><div class="score-bar-fill" style="'+bg+';width:'+s.valueScore+'%"></div></div><div class="score-metrics"><div class="score-metric"><div class="score-metric-label">P/E</div><div class="score-metric-val '+vc(s.pe,[15,30])+'">'+fn(s.pe)+'</div></div><div class="score-metric"><div class="score-metric-label">P/B</div><div class="score-metric-val '+vc(s.pb,[2,10])+'">'+fn(s.pb)+'</div></div><div class="score-metric"><div class="score-metric-label">PEG</div><div class="score-metric-val '+vc(s.peg,[1,2])+'">'+fn(s.peg,2)+'</div></div><div class="score-metric"><div class="score-metric-label">52W</div><div class="score-metric-val '+(s.discount52w<-15?'val-low':s.discount52w>-5?'val-high':'val-mid')+'">'+fn(s.discount52w)+'%</div></div></div></div>';};
-document.getElementById('tab3-content').innerHTML='<div class="score-section"><div class="score-section-title">🟢 TOP 20 저평가 (Value Score 높은순)</div><div class="score-grid">'+t20.map(function(s,i){return mc(s,i,true)}).join('')+'</div></div><div class="score-section"><div class="score-section-title">🔴 TOP 20 고평가 (Value Score 낮은순)</div><div class="score-grid">'+b20.map(function(s,i){return mc(s,i,false)}).join('')+'</div></div>';}
+document.getElementById('tab3-content').innerHTML='<div class="score-section"><div class="score-section-title">TOP 20 저평가 (Value Score 높은순)</div><div class="score-grid">'+t20.map(function(s,i){return mc(s,i,true)}).join('')+'</div></div><div class="score-section"><div class="score-section-title">TOP 20 고평가 (Value Score 낮은순)</div><div class="score-grid">'+b20.map(function(s,i){return mc(s,i,false)}).join('')+'</div></div>';}
 
-// TAB 4
+/* TAB 4 */
 function renderTab4(){var m=document.getElementById('heatmap-metric').value;var secs=DATA.sectors;var en=Object.entries(secs).sort(function(a,b){return b[1].count-a[1].count});
 var gc=function(v){return m==='pe'?(v<16?'cheap':v>28?'expensive':'neutral'):(v<3?'cheap':v>8?'expensive':'neutral')};
 var gco=function(v){return m==='pe'?(v<16?'#22c55e':v>28?'#ef4444':'#eab308'):(v<3?'#22c55e':v>8?'#ef4444':'#eab308')};
@@ -378,7 +408,7 @@ h+='<div class="heatmap-cell '+gc(v)+' '+sz+'"><div><div class="heatmap-sector">
 h+='</div><div class="legend" style="margin-top:14px"><div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>저평가 섹터</div><div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>적정가 섹터</div><div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>고평가 섹터</div></div>';
 document.getElementById('tab4-content').innerHTML=h;}
 
-// TAB 5
+/* TAB 5 */
 function renderTab5(){var f=document.getElementById('thermo-filter').value,sd=document.getElementById('thermo-sort').value;
 var st=DATA.stocks.filter(function(s){return s.pePercentile!=null&&s.pe>0&&s.pe<500});
 if(f==='cheap')st=st.filter(function(s){return s.pePercentile<=20});else if(f==='expensive')st=st.filter(function(s){return s.pePercentile>=80});
@@ -386,13 +416,13 @@ st.sort(function(a,b){return sd==='asc'?a.pePercentile-b.pePercentile:b.pePercen
 var gs=function(p){return p<=15?['극도 저평가','sig-cheap']:p<=30?['저평가','sig-cheap']:p<=70?['적정가','sig-fair']:p<=85?['고평가','sig-exp']:['극도 고평가','sig-exp']};
 var gtc=function(p){return p<=30?'#22c55e':p>=70?'#ef4444':'#e4e4e7'};
 var h='<div class="thermo-header"><span>티커</span><span>종목명</span><span>5년 P/E 범위 내 현재 위치</span><span>퍼센타일</span><span>시그널</span></div><div class="thermo-list">';
-st.forEach(function(s){var r=gs(s.pePercentile);var st2=r[0],sc=r[1];var pc=s.pePercentile<=30?'val-low':s.pePercentile>=70?'val-high':'val-mid';
-h+='<div class="thermo-row"><span class="thermo-ticker" style="color:'+gtc(s.pePercentile)+'">'+s.ticker+'</span><span class="thermo-name">'+(s.name||'')+'</span><div><div class="thermo-bar-wrap"><div class="thermo-marker" style="left:'+Math.max(1,Math.min(97,s.pePercentile))+'%"></div></div></div><span class="thermo-pct '+pc+'">'+s.pePercentile+'%</span><span class="thermo-signal '+sc+'">'+st2+'</span></div>';});
+st.forEach(function(s){var r=gs(s.pePercentile);var st2=r[0],sc2=r[1];var pc=s.pePercentile<=30?'val-low':s.pePercentile>=70?'val-high':'val-mid';
+h+='<div class="thermo-row"><span class="thermo-ticker" style="color:'+gtc(s.pePercentile)+'">'+s.ticker+'</span><span class="thermo-name">'+(s.name||'')+'</span><div><div class="thermo-bar-wrap"><div class="thermo-marker" style="left:'+Math.max(1,Math.min(97,s.pePercentile))+'%"></div></div></div><span class="thermo-pct '+pc+'">'+s.pePercentile+'%</span><span class="thermo-signal '+sc2+'">'+st2+'</span></div>';});
 h+='</div>';document.getElementById('tab5-content').innerHTML=h;}
 
-// TAB 6
+/* TAB 6 */
 function selHistStock(t){selHist=t;var s=DATA.stocks.find(function(x){return x.ticker===t});if(!s)return;
-document.getElementById('hist-chart-title').innerHTML='📈 '+s.ticker+' — '+s.name;
+document.getElementById('hist-chart-title').textContent=s.ticker+' — '+s.name;
 document.getElementById('hist-chart-sub').textContent=s.sector+' · P/E '+fn(s.pe)+' · 퍼센타일 '+s.pePercentile+'%';
 var tc=document.getElementById('hist-tv-container');tc.innerHTML='';
 var d=document.createElement('div');d.style.height='100%';tc.appendChild(d);
@@ -401,7 +431,7 @@ sc2.textContent=JSON.stringify({autosize:true,symbol:t,interval:"W",timezone:"As
 d.appendChild(sc2);
 renderPEC(s);
 document.querySelectorAll('#tab6-content .hist-card').forEach(function(c){c.classList.remove('selected')});
-var clickedCard=document.querySelector('#tab6-content .hist-card[data-ticker="'+t+'"]');if(clickedCard)clickedCard.classList.add('selected');
+var cc=document.querySelector('#tab6-content .hist-card[data-ticker="'+t+'"]');if(cc)cc.classList.add('selected');
 if(window.innerWidth<769)document.getElementById('hist-chart-panel').scrollIntoView({behavior:'smooth',block:'start'});}
 
 function renderPEC(stock){
@@ -431,7 +461,7 @@ c.font='10px JetBrains Mono';
 c.fillStyle='rgba(34,197,94,0.7)';c.fillText('저평가 (하위 25%)',ca.right-110,Math.min(yLow+14,ca.bottom-6));
 c.fillStyle='rgba(239,68,68,0.7)';c.fillText('고평가 (상위 25%)',ca.right-110,Math.max(yHigh-6,ca.top+14));
 c.restore();}};
-peChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'P/E',data:values,borderColor:'#3b82f6',backgroundColor:'transparent',borderWidth:2,pointStyle:ptStyle,pointRadius:ptR,pointHoverRadius:9,pointBackgroundColor:ptC,pointBorderColor:ptC,pointBorderWidth:0,fill:false,tension:0.35}]},plugins:[bandPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{bottom:20,right:4}},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1,titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:11},callbacks:{label:function(ct){var d2=labels[ct.dataIndex];var t2='P/E: '+ct.raw;if(caseDates.has(d2)){var r2=caseReturns[d2];t2+=' ◆ 6개월후: '+(r2>0?'+':'')+r2+'%';}if(ct.dataIndex===labels.length-1)t2+=' (현재)';return t2;},title:function(items){return items[0].label;}}}},scales:{x:{ticks:{color:'#71717a',font:{family:'JetBrains Mono',size:9},maxRotation:45,minRotation:25,maxTicksLimit:8},grid:{color:'rgba(26,26,26,0.6)'}},y:{ticks:{color:'#71717a',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(26,26,26,0.6)'}}}}});}
+peChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'P/E',data:values,borderColor:'#3b82f6',backgroundColor:'transparent',borderWidth:2,pointStyle:ptStyle,pointRadius:ptR,pointHoverRadius:9,pointBackgroundColor:ptC,pointBorderColor:ptC,pointBorderWidth:0,fill:false,tension:0.35}]},plugins:[bandPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{bottom:20,right:4}},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1,titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:11},callbacks:{label:function(ct){var d2=labels[ct.dataIndex];var t2='P/E: '+ct.raw;if(caseDates.has(d2)){var r2=caseReturns[d2];t2+=' | 6개월후: '+(r2>0?'+':'')+r2+'%';}if(ct.dataIndex===labels.length-1)t2+=' (현재)';return t2;},title:function(items){return items[0].label;}}}},scales:{x:{ticks:{color:'#71717a',font:{family:'JetBrains Mono',size:9},maxRotation:45,minRotation:25,maxTicksLimit:8},grid:{color:'rgba(26,26,26,0.6)'}},y:{ticks:{color:'#71717a',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(26,26,26,0.6)'}}}}});}
 
 function renderTab6(){var f=document.getElementById('hist-filter').value;
 var st=DATA.stocks.filter(function(s){var hp=s.histPerformance;if(!hp||!hp.similarCount||hp.similarCount<2)return false;if(f==='cheap')return s.pePercentile<=25;if(f==='expensive')return s.pePercentile>=75;return true;});
