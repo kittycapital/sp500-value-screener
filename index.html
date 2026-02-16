@@ -485,21 +485,26 @@ function shareKakao(){
   else{copyLink(document.querySelector('.share-btn.kakao'))}
 }
 function shareTelegram(){window.open('https://t.me/share/url?url='+PAGE_URL+'&text='+PAGE_TITLE,'_blank','width=550,height=420')}
+function doCopy(url,cb){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(cb).catch(function(){fallbackCopy(url);cb()});
+  }else{fallbackCopy(url);cb()}
+}
 function shareInstagram(btn){
   var svg=btn.querySelector('svg').outerHTML;
-  navigator.clipboard.writeText(SHARE_URL).then(function(){
+  doCopy(SHARE_URL,function(){
     btn.classList.add('copied');btn.innerHTML=svg+'링크 복사됨!';
     showToast('인스타그램 스토리에 링크를 붙여넣기 하세요');
     setTimeout(function(){btn.classList.remove('copied');btn.innerHTML=svg+'인스타그램'},2000);
-  }).catch(function(){fallbackCopy(SHARE_URL);showToast('링크가 복사되었습니다')});
+  });
 }
 function copyLink(btn){
   var svg=btn.querySelector('svg').outerHTML;
-  navigator.clipboard.writeText(SHARE_URL).then(function(){
+  doCopy(SHARE_URL,function(){
     btn.classList.add('copied');btn.innerHTML=svg+'복사됨!';
     showToast('링크가 복사되었습니다');
     setTimeout(function(){btn.classList.remove('copied');btn.innerHTML=svg+'링크복사'},2000);
-  }).catch(function(){fallbackCopy(SHARE_URL);showToast('링크가 복사되었습니다')});
+  });
 }
 function fallbackCopy(text){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500)}
