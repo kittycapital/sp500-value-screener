@@ -75,12 +75,6 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .sector-badge{background:#111;border:1px solid #1a1a1a;color:#a1a1aa;font-size:10px;padding:3px 8px;border-radius:4px;white-space:nowrap}
 .val-low{color:#22c55e}.val-mid{color:#eab308}.val-high{color:#ef4444}
 
-.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px}
-.page-btn{background:#0a0a0a;border:1px solid #1a1a1a;color:#a1a1aa;font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .2s}
-.page-btn:hover{border-color:#333;color:#e4e4e7}
-.page-btn.active{border-color:#3b82f6;color:#3b82f6;background:rgba(59,130,246,.06)}
-.page-info{font-size:11px;color:#71717a;font-family:'JetBrains Mono',monospace}
-
 .split-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .split-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:12px}
 .discount-list{display:flex;flex-direction:column;gap:5px}
@@ -182,6 +176,13 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#a1a1aa}
 .legend-dot{width:7px;height:7px;border-radius:2px}
 
+.scroll-area{max-height:700px;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.scroll-area::-webkit-scrollbar{width:5px}
+.scroll-area::-webkit-scrollbar-track{background:transparent}
+.scroll-area::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+.scroll-area::-webkit-scrollbar-thumb:hover{background:#555}
+.scroll-fade{position:sticky;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,#000);pointer-events:none;z-index:5}
+
 @media(max-width:900px){.heatmap-grid{grid-template-columns:repeat(2,1fr)}.heatmap-cell.lg{grid-column:span 2;grid-row:span 1;min-height:120px}}
 @media(max-width:768px){.split-grid{grid-template-columns:1fr}.score-grid{grid-template-columns:1fr}.hist-grid{grid-template-columns:1fr}.thermo-header,.thermo-row{grid-template-columns:50px 1fr 55px 80px}.thermo-header>:nth-child(2),.thermo-row>:nth-child(2){display:none}.heatmap-pe{font-size:20px}.heatmap-cell.lg .heatmap-pe{font-size:30px}.chart-dual-left{height:280px}.chart-dual-right{height:260px}.top-nav{padding:10px;height:auto;display:flex;flex-direction:column;align-items:center;gap:4px}.nav-title{font-size:.95rem;order:1}.top-nav .stats-row{order:2;justify-content:center;font-size:11px}.top-nav .nav-upd{order:3;font-size:10px}}
 @media(max-width:480px){.heatmap-grid{grid-template-columns:1fr 1fr}.heatmap-cell.md{grid-column:span 2}}
@@ -220,13 +221,12 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 <select class="filter-select" id="f-sector" onchange="renderTab1()"><option value="">전체 섹터</option></select>
 <input type="text" class="search-input" id="f-search" placeholder="종목 검색 (티커 / 회사명)" oninput="renderTab1()">
 </div>
-<div class="table-wrap"><table class="data-table" id="table-1"><thead></thead><tbody></tbody></table></div>
-<div class="pagination" id="pagination-1"></div>
+<div class="table-wrap scroll-area" id="table-scroll"><table class="data-table" id="table-1"><thead></thead><tbody></tbody></table><div class="scroll-fade"></div></div>
 <div class="legend"><div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>저평가</div><div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>적정가</div><div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>고평가</div></div>
 </div>
 
 <!-- TAB 1 -->
-<div class="tab-content" id="tab-1"><div id="tab2-content"></div></div>
+<div class="tab-content" id="tab-1"><div class="scroll-area" style="max-height:700px"><div id="tab2-content"></div><div class="scroll-fade"></div></div></div>
 
 <!-- TAB 2 (DEFAULT) -->
 <div class="tab-content active" id="tab-2">
@@ -238,7 +238,7 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 </div></div>
 <div class="chart-panel-body" id="score-chart-body"><div class="chart-panel-empty">로딩중...</div></div>
 </div>
-<div id="tab3-content"></div>
+<div class="scroll-area" id="score-scroll" style="max-height:800px"><div id="tab3-content"></div><div class="scroll-fade"></div></div>
 </div>
 
 <!-- TAB 3 -->
@@ -249,7 +249,7 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 <div class="filter-bar">
 <select class="filter-select" id="thermo-filter" onchange="renderTab5()"><option value="all">전체 종목</option><option value="cheap">극도로 싼 종목 (0~20%)</option><option value="expensive">극도로 비싼 종목 (80~100%)</option></select>
 <select class="filter-select" id="thermo-sort" onchange="renderTab5()"><option value="asc">퍼센타일 낮은순</option><option value="desc">퍼센타일 높은순</option></select>
-</div><div id="tab5-content"></div>
+</div><div class="scroll-area" id="thermo-scroll"><div id="tab5-content"></div><div class="scroll-fade"></div></div>
 </div>
 
 <!-- TAB 5 -->
@@ -267,14 +267,13 @@ body{background:#000;color:#e4e4e7;font-family:'Noto Sans KR',sans-serif;min-hei
 <div style="font-size:10px;color:#a1a1aa;line-height:1.6;margin-bottom:6px">파란 라인이 <span style="color:#22c55e">초록 밴드</span> 안에 있으면 역사적 저평가, <span style="color:#ef4444">빨간 밴드</span> 안에 있으면 고평가.<br><span style="color:#eab308">&#9670;</span> 마커 = 현재와 비슷한 P/E였던 과거 시점</div><canvas id="pe-history-chart"></canvas></div>
 </div></div></div>
 <div class="filter-bar"><select class="filter-select" id="hist-filter" onchange="renderTab6()"><option value="cheap">저평가 구간 진입 종목</option><option value="expensive">고평가 구간 진입 종목</option><option value="all">전체</option></select></div>
-<div id="tab6-content"></div>
+<div class="scroll-area" id="hist-scroll"><div id="tab6-content"></div><div class="scroll-fade"></div></div>
 </div>
 
 </div>
 <div class="toast" id="toast"></div>
 <script>
-var DATA=null,tab1Page=0,peChart=null,scoreP='6M',selScore=null,selHist=null;
-var PS=30;
+var DATA=null,peChart=null,scoreP='6M',selScore=null,selHist=null;
 var t1Sort='pe',t1Dir='asc';
 var SKR={'Technology':'기술','Financials':'금융','Healthcare':'의료','Consumer Discretionary':'임의소비재','Consumer Staples':'필수소비재','Industrials':'산업재','Communication Services':'통신서비스','Energy':'에너지','Utilities':'유틸리티','Real Estate':'부동산','Materials':'소재'};
 var TIPS={pe:'주가수익비율. 현재 주가÷주당순이익(EPS). 낮을수록 이익 대비 저평가.',fwdpe:'향후 12개월 예상 실적 기준 P/E. 현재보다 낮으면 실적 개선 기대.',pb:'주가순자산비율. 주가÷주당순자산. 1 이하면 자산가치 미만 거래.',ps:'주가매출비율. 적자 기업도 비교 가능한 지표.',peg:'P/E÷이익성장률. 1 이하면 성장 대비 저평가, 2 이상은 고평가.',score:'여러 밸류에이션 지표 종합 점수. 100=극도 저평가, 0=극도 고평가.'};
@@ -334,7 +333,7 @@ function t1HeaderClick(key){
   if(!col||!col.sortable)return;
   if(t1Sort===key){t1Dir=t1Dir==='asc'?'desc':'asc';}
   else{t1Sort=key;t1Dir=key==='score'?'desc':'asc';}
-  tab1Page=0;renderT1P();
+  renderT1P();
 }
 
 function getFS(){
@@ -353,9 +352,9 @@ function getFS(){
   });
   return st;
 }
-function renderTab1(){tab1Page=0;renderT1P();}
+function renderTab1(){renderT1P();}
 function renderT1P(){
-var st=getFS(),tp=Math.ceil(st.length/PS),ps=st.slice(tab1Page*PS,(tab1Page+1)*PS);
+var st=getFS();
 var thead='<tr>';
 T1_COLS.forEach(function(c){
   var cls=t1Sort===c.key&&c.sortable?' sort-active':'';
@@ -366,17 +365,11 @@ T1_COLS.forEach(function(c){
 });
 thead+='</tr>';
 document.querySelector('#table-1 thead').innerHTML=thead;
-document.querySelector('#table-1 tbody').innerHTML=ps.map(function(s,i){var r=tab1Page*PS+i+1;var sc=s.valueScore>=65?'val-low':s.valueScore<=35?'val-high':'val-mid';
-return '<tr><td style="color:#71717a">'+r+'</td><td><div class="ticker-cell"><div class="ticker-logo">'+s.ticker.slice(0,2)+'</div><div><div class="ticker-name">'+s.ticker+'</div><div class="ticker-company">'+(s.name||'')+'</div></div></div></td><td><span class="sector-badge">'+ss(s.sector)+'</span></td><td class="'+vc(s.pe,[15,30])+'">'+fn(s.pe)+'</td><td class="'+vc(s.forwardPE,[12,28])+'">'+fn(s.forwardPE)+'</td><td class="'+vc(s.pb,[2,10])+'">'+fn(s.pb)+'</td><td class="'+vc(s.ps,[3,10])+'">'+fn(s.ps)+'</td><td class="'+vc(s.peg,[1,2])+'">'+fn(s.peg,2)+'</td><td class="'+sc+'" style="font-weight:700;font-size:14px">'+s.valueScore+'</td></tr>';}).join('');
-var pg=document.getElementById('pagination-1');if(tp<=1){pg.innerHTML='';return;}
-var h='<span class="page-info">'+st.length+'개 중 '+(tab1Page*PS+1)+'-'+Math.min((tab1Page+1)*PS,st.length)+'</span>';
-if(tab1Page>0)h+='<button class="page-btn" onclick="tab1Page--;renderT1P()">&#9664;</button>';
-var sp=Math.max(0,tab1Page-4),ep=Math.min(tp,sp+9);
-for(var p=sp;p<ep;p++)h+='<button class="page-btn '+(p===tab1Page?'active':'')+'" onclick="tab1Page='+p+';renderT1P()">'+(p+1)+'</button>';
-if(tab1Page<tp-1)h+='<button class="page-btn" onclick="tab1Page++;renderT1P()">&#9654;</button>';pg.innerHTML=h;}
+document.querySelector('#table-1 tbody').innerHTML=st.map(function(s,i){var r=i+1;var sc=s.valueScore>=65?'val-low':s.valueScore<=35?'val-high':'val-mid';
+return '<tr><td style="color:#71717a">'+r+'</td><td><div class="ticker-cell"><div class="ticker-logo">'+s.ticker.slice(0,2)+'</div><div><div class="ticker-name">'+s.ticker+'</div><div class="ticker-company">'+(s.name||'')+'</div></div></div></td><td><span class="sector-badge">'+ss(s.sector)+'</span></td><td class="'+vc(s.pe,[15,30])+'">'+fn(s.pe)+'</td><td class="'+vc(s.forwardPE,[12,28])+'">'+fn(s.forwardPE)+'</td><td class="'+vc(s.pb,[2,10])+'">'+fn(s.pb)+'</td><td class="'+vc(s.ps,[3,10])+'">'+fn(s.ps)+'</td><td class="'+vc(s.peg,[1,2])+'">'+fn(s.peg,2)+'</td><td class="'+sc+'" style="font-weight:700;font-size:14px">'+s.valueScore+'</td></tr>';}).join('');}
 
 /* TAB 2 */
-function renderTab2(){var st=DATA.stocks.filter(function(s){return s.discount52w!=null});var md=[...st].sort(function(a,b){return a.discount52w-b.discount52w}).slice(0,15);var nh=[...st].sort(function(a,b){return b.discount52w-a.discount52w}).slice(0,10);
+function renderTab2(){var st=DATA.stocks.filter(function(s){return s.discount52w!=null});var md=[...st].sort(function(a,b){return a.discount52w-b.discount52w}).slice(0,30);var nh=[...st].sort(function(a,b){return b.discount52w-a.discount52w}).slice(0,20);
 var mr=function(s,i){var n=s.discount52w<-3;var w=Math.min(Math.abs(s.discount52w),60);return '<div class="discount-row"><span class="discount-rank">'+(i+1)+'</span><span class="discount-ticker" style="color:'+(n?'#ef4444':'#22c55e')+'">'+s.ticker+'</span><div class="discount-bar-wrap"><div class="discount-bar-fill '+(n?'neg':'pos')+'" style="width:'+w+'%"></div></div><span class="discount-pct" style="color:'+(n?'#ef4444':'#22c55e')+'">'+(s.discount52w>0?'+':'')+fn(s.discount52w)+'%</span></div>';};
 document.getElementById('tab2-content').innerHTML='<div class="split-grid"><div><div class="split-section-title">52주 고점 대비 가장 많이 하락</div><div class="discount-list">'+md.map(mr).join('')+'</div></div><div><div class="split-section-title">52주 고점 근접 (강세)</div><div class="discount-list">'+nh.map(mr).join('')+'</div></div></div>';}
 
@@ -392,10 +385,10 @@ var sc=document.querySelector('#tab3-content .score-card[data-ticker="'+t+'"]');
 if(window.innerWidth<769)document.getElementById('score-chart-panel').scrollIntoView({behavior:'smooth',block:'start'});}
 function setScoreP(p){scoreP=p;document.querySelectorAll('#score-period-btns .period-btn').forEach(function(b){b.classList.toggle('active',b.textContent===p)});if(selScore)selScoreStock(selScore);}
 
-function renderTab3(){var so=[...DATA.stocks].filter(function(s){return s.valueScore!=null});var t20=[...so].sort(function(a,b){return b.valueScore-a.valueScore}).slice(0,20);var b20=[...so].sort(function(a,b){return a.valueScore-b.valueScore}).slice(0,20);
+function renderTab3(){var so=[...DATA.stocks].filter(function(s){return s.valueScore!=null});var t20=[...so].sort(function(a,b){return b.valueScore-a.valueScore}).slice(0,30);var b20=[...so].sort(function(a,b){return a.valueScore-b.valueScore}).slice(0,30);
 var mc=function(s,i,g){var co=g?'green':'red';var bg=g?'background:linear-gradient(90deg,rgba(34,197,94,.15),#22c55e)':'background:linear-gradient(90deg,rgba(239,68,68,.15),#ef4444)';
 return '<div class="score-card" data-ticker="'+s.ticker+'" onclick="selScoreStock(\''+s.ticker+'\')"><div class="score-card-top"><span class="score-card-rank">#'+(i+1)+'</span><div class="score-card-ticker-row"><span class="score-card-ticker">'+s.ticker+'</span><span class="sector-badge">'+ss(s.sector)+'</span></div><span class="score-badge '+co+'">'+s.valueScore+'</span></div><div class="score-bar-track"><div class="score-bar-fill" style="'+bg+';width:'+s.valueScore+'%"></div></div><div class="score-metrics"><div class="score-metric"><div class="score-metric-label">P/E</div><div class="score-metric-val '+vc(s.pe,[15,30])+'">'+fn(s.pe)+'</div></div><div class="score-metric"><div class="score-metric-label">P/B</div><div class="score-metric-val '+vc(s.pb,[2,10])+'">'+fn(s.pb)+'</div></div><div class="score-metric"><div class="score-metric-label">PEG</div><div class="score-metric-val '+vc(s.peg,[1,2])+'">'+fn(s.peg,2)+'</div></div><div class="score-metric"><div class="score-metric-label">52W</div><div class="score-metric-val '+(s.discount52w<-15?'val-low':s.discount52w>-5?'val-high':'val-mid')+'">'+fn(s.discount52w)+'%</div></div></div></div>';};
-document.getElementById('tab3-content').innerHTML='<div class="score-section"><div class="score-section-title">TOP 20 저평가 (Value Score 높은순)</div><div class="score-grid">'+t20.map(function(s,i){return mc(s,i,true)}).join('')+'</div></div><div class="score-section"><div class="score-section-title">TOP 20 고평가 (Value Score 낮은순)</div><div class="score-grid">'+b20.map(function(s,i){return mc(s,i,false)}).join('')+'</div></div>';}
+document.getElementById('tab3-content').innerHTML='<div class="score-section"><div class="score-section-title">TOP 30 저평가 (Value Score 높은순)</div><div class="score-grid">'+t20.map(function(s,i){return mc(s,i,true)}).join('')+'</div></div><div class="score-section"><div class="score-section-title">TOP 30 고평가 (Value Score 낮은순)</div><div class="score-grid">'+b20.map(function(s,i){return mc(s,i,false)}).join('')+'</div></div>';}
 
 /* TAB 4 */
 function renderTab4(){var m=document.getElementById('heatmap-metric').value;var secs=DATA.sectors;var en=Object.entries(secs).sort(function(a,b){return b[1].count-a[1].count});
@@ -412,7 +405,7 @@ document.getElementById('tab4-content').innerHTML=h;}
 function renderTab5(){var f=document.getElementById('thermo-filter').value,sd=document.getElementById('thermo-sort').value;
 var st=DATA.stocks.filter(function(s){return s.pePercentile!=null&&s.pe>0&&s.pe<500});
 if(f==='cheap')st=st.filter(function(s){return s.pePercentile<=20});else if(f==='expensive')st=st.filter(function(s){return s.pePercentile>=80});
-st.sort(function(a,b){return sd==='asc'?a.pePercentile-b.pePercentile:b.pePercentile-a.pePercentile});st=st.slice(0,50);
+st.sort(function(a,b){return sd==='asc'?a.pePercentile-b.pePercentile:b.pePercentile-a.pePercentile});
 var gs=function(p){return p<=15?['극도 저평가','sig-cheap']:p<=30?['저평가','sig-cheap']:p<=70?['적정가','sig-fair']:p<=85?['고평가','sig-exp']:['극도 고평가','sig-exp']};
 var gtc=function(p){return p<=30?'#22c55e':p>=70?'#ef4444':'#e4e4e7'};
 var h='<div class="thermo-header"><span>티커</span><span>종목명</span><span>5년 P/E 범위 내 현재 위치</span><span>퍼센타일</span><span>시그널</span></div><div class="thermo-list">';
@@ -466,7 +459,6 @@ peChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'P/E',da
 function renderTab6(){var f=document.getElementById('hist-filter').value;
 var st=DATA.stocks.filter(function(s){var hp=s.histPerformance;if(!hp||!hp.similarCount||hp.similarCount<2)return false;if(f==='cheap')return s.pePercentile<=25;if(f==='expensive')return s.pePercentile>=75;return true;});
 if(f==='cheap')st.sort(function(a,b){return a.pePercentile-b.pePercentile});else if(f==='expensive')st.sort(function(a,b){return b.pePercentile-a.pePercentile});else st.sort(function(a,b){return Math.abs(b.pePercentile-50)-Math.abs(a.pePercentile-50)});
-st=st.slice(0,20);
 var h='<div class="hist-grid">';
 st.forEach(function(s){var hp=s.histPerformance;var ic=s.pePercentile<=30;var zc=ic?'sig-cheap':'sig-exp';var zt=ic?'P/E 하위 '+s.pePercentile+'%':'P/E 상위 '+(100-s.pePercentile)+'%';var ac=hp.avg6mReturn>=0?'val-low':'val-high';var wc=hp.winRate>=60?'val-low':hp.winRate<=40?'val-high':'val-mid';
 var ch='';if(hp.cases)hp.cases.slice(0,4).forEach(function(c){var rc=c.return6m>=0?'val-low':'val-high';ch+='<div class="hist-case"><span class="hist-case-date">'+c.date+'</span><span class="hist-case-pe">P/E '+fn(c.pe)+'</span><span class="hist-case-result '+rc+'">'+(c.return6m>0?'+':'')+fn(c.return6m)+'%</span></div>';});
